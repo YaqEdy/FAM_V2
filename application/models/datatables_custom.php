@@ -31,7 +31,6 @@ class datatables_custom extends CI_Model {
         $this->db->where_in($this->param_in, $this->where_in);
         $this->db->from($this->table);
         $this->db->where_not_in($this->param_not_in, $this->where_not_in);
-
 //        $this->db->like($this->where);
 //        $this->db->from($this->table);
 
