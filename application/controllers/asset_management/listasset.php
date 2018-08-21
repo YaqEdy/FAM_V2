@@ -185,6 +185,8 @@ class Listasset extends CI_Controller {
                         . '<a><button onclick="disposal(this)" class="btn btn-xs disposal ' . $iclass . '" type="button" name="' . $idatatables->FAID . '" id="' . $idatatables->Raw_ID . '" ' . $idisabled . '>' . $hd . '</button></a>';
             }
             $row[] = '<a data-toggle="modal" data-target="#myModal" id="' . $idatatables->FAID . '" onclick="detilasset(this)"><button class="btn btn-primary btn-xs" type="button" >Depreciation</button></a>' . $btn;
+            $row[] = $idatatables->Raw_ID;
+            
             $data[] = $row;
         }
 
@@ -226,15 +228,15 @@ class Listasset extends CI_Controller {
     }
 
     public function disposal($id, $faid) {
-        $return=$this->assetlist->disposal($id, $faid);
+        $return = $this->assetlist->disposal($id, $faid);
         echo json_encode($return);
     }
 
     public function mutasi($iid) {
         $faid = $this->assetlist->setMutasi();
-        $data=$this->generateQR(1, $faid, $iid);
+        $data = $this->generateQR(1, $faid, $iid);
 //        print_r($data);die();
-        $this->load->view('asset_management/listasset/generateqr', $data);
+//        $this->load->view('asset_management/listasset/generateqr', $data);
     }
 
     function generateQR($status, $faid, $id) {
@@ -338,9 +340,255 @@ class Listasset extends CI_Controller {
         echo $list;
     }
 
-    
-    
-    
+    public function formdisposal() {
+        if (empty($this->input->post('iddisposal')))
+            echo "Check list Item yang akan di disposal !";
+        else {
+            $this->load->library('word');
+            //our docx will have 'lanscape' paper orientation
+            $section = $this->word->createSection(array('orientation' => 'portrait'));
+
+            $header = $section->createHeader();
+
+            // Add image elements		
+            $header->addImage(FCPATH . 'assets/img/logo.png', array('width' => 177, 'height' => 40, 'align' => 'left'));
+
+            // Define table style arrays
+            $styleTable = array('borderSize' => 6, 'borderColor' => '006699', 'cellMargin' => 80);
+            $styleFirstRow = array('borderBottomSize' => 18, 'borderBottomColor' => '0000FF', 'bgColor' => '66BBFF');
+
+            // Define cell style arrays
+            $styleCell = array('valign' => 'center');
+            // $styleCellBTLR = array('valign'=>'center', 'textDirection'=>PHPWord_Style_Cell::TEXT_DIR_BTLR);
+            // Define font style for first row
+            $fontStyle = array('bold' => true, 'align' => 'center');
+
+            // Add table style
+            $this->word->addTableStyle('myOwnTableStyle', $styleTable, $styleFirstRow);
+
+            // Add table
+            $table = $section->addTable('myOwnTableStyle');
+
+            // Add row
+            $table->addRow(900);
+
+            // Add cells
+            $table->addCell(2000, $styleCell)->addText('Location', $fontStyle);
+            $table->addCell(2000, $styleCell)->addText('Item Name', $fontStyle);
+            $table->addCell(2000, $styleCell)->addText('FAID', $fontStyle);
+            $table->addCell(2000, $styleCell)->addText('Price', $fontStyle);
+            $table->addCell(2000, $styleCell)->addText('Depreciation (' . Date('d/m/Y') . ')', $fontStyle);
+            $table->addCell(2000, $styleCell)->addText('Purchase Date', $fontStyle);
+
+            $item = $this->assetlist->getItemDisposal();
+            $tgl = date('Y-m-d');
+            foreach ($item as $key) {
+                if ($key->Status == 3) {
+                    $lokasi = $this->assetlist->getCodeBranchDivisi($key->FAID);
+                    $lokasi = ((int) $lokasi->BranchCode == 00000) ? $lokasi->BranchName . " - " . $lokasi->DivisionName : $lokasi->BranchName;
+                } else
+                    $lokasi = ((int) $key->BranchCode == 00000) ? $key->BranchName . " - " . $key->DivisionName : $key->BranchName;
+                $lama = $this->get_interval_in_month($key->SetDatePayment, $tgl);
+                $nilaibuku = $key->PriceVendor - ($lama * $key->Depreciation);
+                $table->addRow();
+                $table->addCell(2000)->addText($lokasi);
+                $table->addCell(2000)->addText($key->ItemName);
+                $table->addCell(2000)->addText($key->FAID);
+                $table->addCell(2000)->addText("Rp " . number_format($key->PriceVendor) . ".00");
+                $table->addCell(2000)->addText("Rp " . (((int) $nilaibuku <= 0) ? "1" : number_format($nilaibuku)) . ".00");
+                $table->addCell(2000)->addText(date('d-m-Y', strtotime($key->SetDatePayment)));
+            }
+
+
+
+            $footer = $section->createFooter();
+            $footer->addText('PT Permodalan Nasional Madani (Persero)');
+            $footer->addText('Kantor Pusat : Gedung Arthaloka Lt. 1,6 dan 10 Jl. Jend Sudirman Kav.2-Jakarta 10220 Telp.(021)2511 405 E-mail madani@pnm.co.id, www.pnm.co.id ');
+            $filename = 'DISPOSAL.docx'; //save our document as this file name
+            header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document'); //mime type
+            header('Content-Disposition: attachment;filename="' . $filename . '"'); //tell browser what's the file name
+            header('Cache-Control: max-age=0'); //no cache
+
+            $objWriter = PHPWord_IOFactory::createWriter($this->word, 'Word2007');
+            $objWriter->save('php://output');
+        }
+    }
+
+    public function downloadPDF() {
+        if ($this->input->get('iddisposal')=="")
+            echo "Check list Item untuk generate Dokumen QR CODE  !";
+        else {
+            $this->load->library('Pdf');
+
+            // $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+            $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+            // set document information
+            $pdf->SetCreator(PDF_CREATOR);
+            $pdf->SetAuthor('TRAM');
+            $pdf->SetTitle('QR CODE ASSET');
+            $pdf->SetSubject('TCPDF Tutorial');
+            $pdf->SetKeywords('TCPDF, PDF, example, test, guide');
+
+            // set default header data
+            // $pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE.' 001', PDF_HEADER_STRING, array(0,64,255), array(0,64,128));
+            // $pdf->setFooterData(array(0,64,0), array(0,64,128));
+            // set header and footer fonts
+            // $pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
+            // $pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+            $pdf->setPrintHeader(false);
+            $pdf->setPrintFooter(false);
+
+            // set default monospaced font
+            // $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+            // set margins
+            $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+            $pdf->SetHeaderMargin(1);
+            $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+
+            // set auto page breaks
+            $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+
+            // set image scale factor
+            $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+
+            // set some language-dependent strings (optional)
+            if (@file_exists(dirname(__FILE__) . '/lang/eng.php')) {
+                require_once(dirname(__FILE__) . '/lang/eng.php');
+                $pdf->setLanguageArray($l);
+            }
+
+            // ---------------------------------------------------------
+            // set default font subsetting mode
+            $pdf->setFontSubsetting(true);
+
+            // Set font
+            // dejavusans is a UTF-8 Unicode font, if you only need to courier
+            // print standard ASCII chars, you can use core fonts like
+            // helvetica or times to reduce file size.
+            $pdf->SetFont('dejavusans', '', 14, '', true);
+
+            // Add a page
+            // This method has several options, check the source code documentation for more information.
+            $pdf->AddPage();
+
+            // set text shadow effect
+            // $pdf->setTextShadow(array('enabled'=>true, 'depth_w'=>0.2, 'depth_h'=>0.2, 'color'=>array(196,196,196), 'opacity'=>1, 'blend_mode'=>'Normal'));			
+            $tabel = '';
+            $pnm = base_url() . 'assets/img/logo.png';
+            foreach ($this->input->get('iddisposal') as $key => $value) {
+                $id = explode(",", $value);
+                $data = $this->assetlist->getItemQR($id[0], $id[1]);
+                $qrcode = base_url() . 'assets/temp/' . $data->FAID . '.png';
+
+
+                //echo $qrcode;die();
+//                                echo '<pre>';
+//                                print_r($data);die();
+
+                $BranchName = $data->BranchName;
+                $DivisionName = $data->DivisionName;
+                $BisUnitName = $data->BisUnitName;
+                $branchCode = (int) $data->BranchCode;
+
+                if ($branchCode == '00000' && $BisUnitName == '') {
+                    $lokasi = strtoupper($DivisionName);
+                } elseif ($branchCode <> '00000' && $DivisionName == '' && $BisUnitName == '') {
+                    $lokasi = strtoupper($BranchName);
+                } elseif ($branchCode == '' && $BranchName == '' && $BisUnitName == '') {
+                    $lokasi = strtoupper($DivisionName);
+                } elseif ($branchCode == '' && $BranchName == '' && $DivisionName == '') {
+                    $lokasi = strtoupper($BisUnitName);
+                } elseif ($branchCode != '' && $BranchName != '' && $BisUnitName != '') {
+                    $lokasi = strtoupper($BisUnitName);
+                } else {
+                    $lokasi = strtoupper($BranchName);
+                }
+
+
+                $tabel .= '<table style="height:100px;page-break-inside: avoid;">
+                <tr>
+                <td>
+                <table border="1" cellpadding="1" cellspacing="1" width="360" height="120">
+                <tr>
+                <td style="text-align: center;"><img src="' . $pnm . '" style="width: 200px; height: 55px; "></td>
+                <td rowspan="3" width="28%"><img src="' . $qrcode . '" style="width: 150px; height: 150px; padding: 5px !important"></td> 
+                </tr>
+                <tr>
+                <td style="text-align: center; font-size: 14px">' . $lokasi . '</td>			    			    			
+                </tr>
+                <tr>
+                <td style="text-align: center; font-size: 14px">' . $data->FAID . '</td>			    			    			
+                </tr>
+                </table>
+                </td>
+                <td>
+                <table border="1" cellpadding="1" cellspacing="1" width="180" height="60" >                                                        
+                <tr>
+                <td style="text-align: center;"><img src="' . $pnm . '" style="width: 200px; height: 25px; "></td>
+                <td rowspan="3" width="28%"><img src="' . $qrcode . '" style="width: 150px; height: 150px; padding: 5px !important"></td> 
+                </tr>
+                <tr>
+                <td style="text-align: center; font-size: 7px">' . $lokasi . '</td>			    			    			
+                </tr>
+                <tr>
+                <td style="text-align: center; font-size: 6px">' . $data->FAID . '</td>			    			    			
+                </tr>
+                </table>
+                </td>
+                </tr>
+                </table>    ';
+                $tabel .= '</div>';
+//                                $tabel .= '<table border="1" cellpadding="1" cellspacing="1" width="160" height="9" >                                                        
+//							  <tr>
+//							    <td style="text-align: center;"><img src="'.$pnm.'" style="width: 200px; height: 25px; "></td>
+//							    <td rowspan="3" width="28%"><img src="'.$qrcode.'" style="width: 150px; height: 150px; padding: 5px !important"></td> 
+//							  </tr>
+//							  <tr>
+//							    <td style="text-align: center; font-size: 7px">'.$lokasi.'</td>			    			    			
+//							  </tr>
+//							  <tr>
+//							    <td style="text-align: center; font-size: 6px">'.$data->FAID.'</td>			    			    			
+//							  </tr>
+//							</table>';
+//                                $tabel .= '<div></div>';
+            }
+
+
+            $html = <<<EOD
+			$tabel
+EOD;
+
+
+            $pdf->writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
+
+            $pdf->Output('QRCODEASSET.pdf', 'I');
+        }
+    }
+
+    public function add_disposal() {
+
+        $config['upload_path'] = "./uploads/";
+        $config['allowed_types'] = '*';
+        $config['max_size'] = '0';
+        $config['file_name'] = 'DISPOSAL-' . date('YmdHis');
+
+        $this->load->library('upload', $config);
+        if ($this->upload->do_upload("namafile")) {
+            $error = array('array' => $this->upload->display_errors());
+            $data = $this->upload->data();
+            $source = "./uploads/" . $data['file_name'];
+            chmod($source, 0777);
+            $paydata = $data['file_name'];
+        } else {
+            $istatus = false;
+            $iremarks = $this->upload->display_errors();
+        }
+
+        print_r($iremarks);
+        die();
+    }
+
 }
 
 /* End of file sec_user.php */

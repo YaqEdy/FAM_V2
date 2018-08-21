@@ -10,7 +10,11 @@
         background-color: #66ff99 !important;
     }    
 </style>
-
+<?php
+$div = $this->session->userdata('DivisionID');
+$branch = $this->session->userdata('BranchID');
+$usergroup = $this->session->userdata('groupid');
+?>
 <div class="row">
     <div class="col-md-12">
         <!-- BEGIN VALIDATION STATES-->
@@ -68,6 +72,18 @@
                                                 <th>Image</th>
                                                 <th>QR Code</th>
                                                 <th>Condition</th>
+                                                <th>
+                                                    <?php
+                                                    if ($div == 8 && $branch == 1 && $usergroup <> 3) {
+                                                        ?>
+                                                        <a href="<?php echo base_url(); ?>asset_management/listasset/formdisposal" class="btn btn-primary btn-xs" target="_blank"><i class="fa fa-download"></i> disposal</a>                                                    
+                                                        <a data-toggle="modal" data-target="#myModal" class="btn btn-warning btn-xs text-right" onclick="uploaddisposal()"><i class="fa fa-upload" /> Disposal</a> 
+                                                    <?php } else { ?>
+                                                        <a href="<?php echo base_url(); ?>asset_management/listasset/formdisposal" class="btn btn-primary btn-xs" target="_blank" style="display:none;"><i class="fa fa-download"></i> disposal</a>                                                    
+                                                        <a data-toggle="modal" data-target="#myModal" class="btn btn-warning btn-xs text-right" onclick="uploaddisposal()" style="display:none;"><i class="fa fa-upload"></i> Disposal</a> 
+                                                    <?php } ?>
+                                                        <a href="<?php echo base_url(); ?>asset_management/listasset/downloadPDF" id="idPDF" class="btn btn-success btn-xs" >QR Code</a>                                                    
+                                                </th>
                                                 <th></th>
                                             </tr>
                                         </thead>
@@ -116,7 +132,8 @@
                 <div id="prosessloading"/>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary" name="signup" value="Submit" id="submitmutasi">Mutation</button>
-                    <!--<button type="submit" class="btn btn-primary" id="submitterm" name="submitterm" value="Submit">Save</button>-->
+                    <button type="button" class="btn btn-primary" id="updis" name="signup" value="Submit" hidden>Save</button>
+                     <!--<button type="submit" class="btn btn-primary" id="submitterm" name="submitterm" value="Submit">Save</button>-->
                     <button type="button" class="btn btn-default" data-dismiss="modal" id="btn_close" >Close</button>
                 </div>
             </div>

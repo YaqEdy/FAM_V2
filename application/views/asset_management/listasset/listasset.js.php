@@ -8,9 +8,10 @@
     var iItemName = "";
     var iStatus = '%';
     var iSearch = 'BranchName';
-
+    var iddisposal_ = "";
     jQuery(document).ready(function () {
         loadGridMutation();
+        $("#idPDF").attr("href", "<?php echo base_url(); ?>asset_management/listasset/downloadPDF?iddisposal=" + iddisposal_);
 
     });
     // jQuery(document).ready(function () {
@@ -71,6 +72,7 @@
             },
             "columnDefs": [
                 {"targets": [-1], "orderable": false, "searchable": false},
+                {"targets": [12], "checkboxes": {"selectRow": true}},
 //                {"targets": [0], "orderable": false},
 //                {"targets": [1], "orderable": false},
 //                {"targets": [2], "orderable": false},
@@ -84,6 +86,7 @@
 //                {"targets": [10], "visible": false, "searchable": false},
 //                {"targets": [11], "visible": false, "searchable": false},
             ],
+            "select": {"style": "multi"},
         });
     }
 
@@ -139,7 +142,7 @@
         });
     }
 
-    $("form#mutations").click(function (e) {
+    $("form#mutations").submit(function (e) {
         e.preventDefault();
         if ($("#cabang").val() != "" && $("#unit").val() != 0 && $("#unit").val() != "" || $("#divisi").val() != "") {
             $.ajax({
@@ -206,5 +209,60 @@
                 },
             });
         }
+    });
+
+    function uploaddisposal() {
+        $("#submitmutasi").hide();
+        $("#updis").show();
+        $(".modal-title").html('Upload Disposal');
+        var ihtml = '';
+        ihtml += '<div id="modal-add" class="modal-add">';
+        ihtml += '<div class="panel panel-inverse">';
+//        ihtml += '<hr class="dotted">';
+        ihtml += '<div class="validator-form form-horizontal">';
+        ihtml += '<div class="form-group">';
+        ihtml += '<label class="control-label col-sm-3">Upload File (.docx/.doc)</label>';
+        ihtml += '<div class="col-sm-7">';
+        ihtml += '<input type="file" class="form-control" name="namafile" id="namafile" required>       ';
+        ihtml += '</div>';
+        ihtml += '</div>';
+        ihtml += '</div>';
+        ihtml += '</div>';
+        ihtml += '</div>';
+        $('#bodyDetail').html(ihtml);
+    }
+//
+//    $("#updis").click(function () {
+//        alert("ya");
+//    });
+    $("form#mutations").on('click', '#updis', function (e) {
+//        harus dirubah on click checkbox datatables
+        var rows_selected = dataTable.column(12).checkboxes.selected();
+         if (iddisposal_ == "") {
+            iddisposal_ = iddisposal_ + rows_selected.join(",");
+        } else {
+            iddisposal_ = rows_selected.join(",");
+        }
+
+        var file_data = $('#namafile').prop('files')[0];
+        var form_data = new FormData();
+        form_data.append('namafile', file_data);
+        $.ajax({
+            url: '<?php echo base_url(); ?>asset_management/listasset/add_disposal',
+            type: 'POST',
+            data: form_data,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function (a) {
+                $('#table_gridMutation').DataTable().ajax.reload();
+            },
+            beforeSend: function (data) {
+                $("#updis").attr('disabled', 'disabled').html('Loading...');
+            },
+            complete: function () {
+                $("#updis").removeAttr('disabled').html('Save');
+            }
+        });
     });
 </script>
