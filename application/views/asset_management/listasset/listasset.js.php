@@ -1,11 +1,11 @@
 <script>
-    var dataTable;
-    var iZoneName="";
-    var iDivisionName="";
-    var iBisUnitName="";
-    var iFAID="";
-    var iFAID_lama="";
-    var iItemName="";
+    var dataTable, iid;
+    var iZoneName = "";
+    var iDivisionName = "";
+    var iBisUnitName = "";
+    var iFAID = "";
+    var iFAID_lama = "";
+    var iItemName = "";
     var iStatus = '%';
     var iSearch = 'BranchName';
 
@@ -18,31 +18,30 @@
     // });
     btnStart();
 
-function sch(e){
-    console.log(e.value);
-    if(e.name=="ZoneName"){
-        iZoneName=e.value;
+    function sch(e) {
+        console.log(e.value);
+        if (e.name == "ZoneName") {
+            iZoneName = e.value;
+        }
+        if (e.name == "DivisionName") {
+            iDivisionName = e.value;
+        }
+        if (e.name == "BisUnitName") {
+            iBisUnitName = e.value;
+        }
+        if (e.name == "FAID") {
+            iFAID = e.value;
+        }
+        if (e.name == "FAID_lama") {
+            iFAID_lama = e.value;
+        }
+        if (e.name == "ItemName") {
+            iItemName = e.value;
+        }
+        $('#table_gridMutation').DataTable().ajax.reload();
     }
-    if(e.name=="DivisionName"){
-        iDivisionName=e.value;
-    }
-    if(e.name=="BisUnitName"){
-        iBisUnitName=e.value;
-    }
-    if(e.name=="FAID"){
-        iFAID=e.value;
-    }
-    if(e.name=="FAID_lama"){
-        iFAID_lama=e.value;
-    }
-    if(e.name=="ItemName"){
-        iItemName=e.value;
-    }
-     $('#table_gridMutation').DataTable().ajax.reload();
-}
     function loadGridMutation() {
         dataTable = $('#table_gridMutation').DataTable({
-          
             "lengthMenu": [
                 [5, 10, 15, 20, -1],
                 [5, 10, 15, 20, "All"] // change per page values here
@@ -89,6 +88,8 @@ function sch(e){
     }
 
     function detilasset(e) {
+        $(".modal-title").html('Depreciation');
+        $("#submitmutasi").hide();
         var id = e.id;
         var encripturl = '<?php echo base_url(); ?>asset_management/listasset/detilasset/' + id;
         $.ajax({
@@ -101,24 +102,109 @@ function sch(e){
         });
     }
 
-    function setID(val) {
-        document.getElementById("data_id").value = val;
-        console.log(val);
-    }
-   function mutationasset(e) {
-//       document.getElementById("myModal2").style.zIndex = "1";
-        $("#mdl_Update").css("z-index", "10000");
-        console.log(e.id,'-',e.name);
-//        var encripturl = '<?php echo base_url(); ?>asset_management/listasset/mutationasset/' + e.id + '/' + e.name;
-//        $.ajax({
-//            url: encripturl,
-//            type: 'POST',
-//            dataType: 'html',
-//            success: function (a) {
-//                console.log(a);
-////                $('#modal-mutation').html(a);
-//            },
-//        });
+    function mutationasset(e) {
+        $(".modal-title").html('Mutation Asset');
+        iid = e.id;
+        $("#submitmutasi").show();
+        var encripturl = '<?php echo base_url(); ?>asset_management/listasset/mutationasset/' + e.id + '/' + e.name;
+        $.ajax({
+            url: encripturl,
+            type: 'POST',
+            dataType: 'html',
+            success: function (a) {
+                $('#bodyDetail').html(a);
+            },
+        });
     }
 
+    function disposal(e) {
+        var id = e.id;
+        var faid = e.name;
+        var encripturl = '<?php echo base_url(); ?>asset_management/listasset/disposal/' + id + '/' + faid;
+        $.ajax({
+            url: encripturl,
+            type: 'POST',
+            dataType: 'JSON',
+            success: function (a) {
+                if (a) {
+                    $('#table_gridMutation').DataTable().ajax.reload();
+                }
+            },
+            beforeSend: function () {
+                $(".disposal").attr('disabled', 'disabled').html('Loading...');
+            },
+            compelete: function () {
+                $(".disposal").removeAttr('disabled', 'disabled').html('disposal');
+            }
+        });
+    }
+
+    $("form#mutations").click(function (e) {
+        e.preventDefault();
+        if ($("#cabang").val() != "" && $("#unit").val() != 0 && $("#unit").val() != "" || $("#divisi").val() != "") {
+            $.ajax({
+                url: '<?php echo base_url(); ?>asset_management/listasset/mutasi/' + iid,
+                type: 'POST',
+                data: new FormData(this),
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (a) {
+                    $('#table_gridMutation').DataTable().ajax.reload();
+                }
+//            beforeSend: function () {
+//                $("#submitmutasi").attr('disabled', 'disabled').html('Loading...');
+//            },
+//            compelete: function () {
+//                $("#submitmutasi").removeAttr('disabled', 'disabled').html('Mutation');
+//            }
+            });
+        }
+    });
+
+    $(document).on('change', '#zona', function (e) {
+        zona = $(this).find("option:selected").attr('value');
+        var encripturl = '<?php echo base_url(); ?>asset_management/listasset/getBranch/' + zona;
+        $.ajax({
+            url: encripturl,
+            type: 'POST',
+            dataType: 'html',
+            success: function (jawaban) {
+                $('#cabang').html(jawaban);
+                $('#unit').html("<option value='0'>--Select--</option>");
+
+            },
+        });
+    });
+
+    $(document).on('change', '#cabang', function (e) {
+        cabang = $(this).find("option:selected").attr('value');
+        var kode = $(this).find("option:selected").attr('kode');
+        if (kode.trim() == '00000') {
+            $('#displaydivisi').show();
+            $('#displayUnit').hide();
+            $.ajax({
+                url: '<?php echo base_url(); ?>asset_management/listasset/getdivisi/' + cabang,
+                type: 'POST',
+                dataType: 'html',
+                success: function (jawaban) {
+                    $('#divisi').html(jawaban);
+
+                },
+            });
+
+        } else {
+            $('#displaydivisi').hide();
+            $('#displayUnit').show();
+            $.ajax({
+                url: '<?php echo base_url(); ?>asset_management/listasset/getunit/' + cabang,
+                type: 'POST',
+                dataType: 'html',
+                success: function (jawaban) {
+                    $('#unit').html(jawaban);
+
+                },
+            });
+        }
+    });
 </script>

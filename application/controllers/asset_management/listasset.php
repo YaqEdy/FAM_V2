@@ -14,7 +14,7 @@ class Listasset extends CI_Controller {
 //        $this->load->model('zsessions_m');
         $this->load->model('global_m');
         $this->load->model('procurement/menu_mdl', 'Menu_mdl');
-//        $this->load->model('asset_management/mutation_mdl', 'mutation');
+        $this->load->model('asset_management/payment_mdl', 'Payment_mdl');
         $this->load->model('asset_management/listasset_mdl', 'assetlist');
         $this->load->model('datatables_custom');
 
@@ -85,24 +85,34 @@ class Listasset extends CI_Controller {
         $branch = $this->session->userdata('BranchID');
         $usergroup = $this->session->userdata('groupid');
 
-        if($this->input->post('sZoneName')!=""){
-        $iwhere1 = array('ZoneName' => $this->input->post('sZoneName'));            
-        }else{$iwhere1 = array();}
-        if($this->input->post('sDivisionName')!=""){
-        $iwhere2 = array('DivisionName' => $this->input->post('sDivisionName'));            
-        }else{$iwhere2 = array();}
-        if($this->input->post('sBisUnitName')!=""){
-        $iwhere3 = array('BisUnitName' => $this->input->post('sBisUnitName'));            
-        }else{$iwhere3 = array();}
-        if($this->input->post('sFAID')!=""){
-        $iwhere4 = array('FAID' => $this->input->post('sFAID'));            
-        }else{$iwhere4 = array();}
-        if($this->input->post('sItemName')!=""){
-        $iwhere5 = array('ItemName' => $this->input->post('sItemName'));            
-        }else{$iwhere5 = array();}
+        if ($this->input->post('sZoneName') != "") {
+            $iwhere1 = array('ZoneName' => $this->input->post('sZoneName'));
+        } else {
+            $iwhere1 = array();
+        }
+        if ($this->input->post('sDivisionName') != "") {
+            $iwhere2 = array('DivisionName' => $this->input->post('sDivisionName'));
+        } else {
+            $iwhere2 = array();
+        }
+        if ($this->input->post('sBisUnitName') != "") {
+            $iwhere3 = array('BisUnitName' => $this->input->post('sBisUnitName'));
+        } else {
+            $iwhere3 = array();
+        }
+        if ($this->input->post('sFAID') != "") {
+            $iwhere4 = array('FAID' => $this->input->post('sFAID'));
+        } else {
+            $iwhere4 = array();
+        }
+        if ($this->input->post('sItemName') != "") {
+            $iwhere5 = array('ItemName' => $this->input->post('sItemName'));
+        } else {
+            $iwhere5 = array();
+        }
 
-        $iwhere=array_merge($iwhere1,$iwhere2,$iwhere3,$iwhere4,$iwhere5);
-        $icolumn = array('coa','Status','QTY','Raw_ID','FAID','FAID_lama','Period','PriceVendor','SetDatePayment','Condition','Is_trash','Image','DateCondition','ItemName','ZoneName','BranchName','BranchCode','DivisionName','BisUnitName');
+        $iwhere = array_merge($iwhere1, $iwhere2, $iwhere3, $iwhere4, $iwhere5);
+        $icolumn = array('coa', 'Status', 'QTY', 'Raw_ID', 'FAID', 'FAID_lama', 'Period', 'PriceVendor', 'SetDatePayment', 'Condition', 'Is_trash', 'Image', 'DateCondition', 'ItemName', 'ZoneName', 'BranchName', 'BranchCode', 'DivisionName', 'BisUnitName');
         $iorder = array('Raw_ID' => 'desc');
 
         $list = $this->datatables_custom->get_datatables('vw_asset_list', $icolumn, $iorder, $iwhere);
@@ -150,17 +160,30 @@ class Listasset extends CI_Controller {
             }
             $row[] = $cond;
             $btn = '';
-                $btn.= '<a data-toggle="modal" data-target="#mdl_Update" id="' . $idatatables->Raw_ID . '" name="'.$idatatables->FAID.'" onclick="mutationasset(this)" ><button class="btn btn-primary btn-xs" type="button" >Mutation</button></a>';
-//                $btn.='<a onclick="mutationasset(this)" data-toggle="modal" data-target="#myUpdate" id="'.$idatatables->Raw_ID.'" name="'.$idatatables->FAID.'" ><button class="btn btn-primary btn-xs" type="button">Mutation</button></a>';
-//            if ($div == 8 && $branch == 1 && $usergroup <> 3) {
-//                $btn.='<a onclick="mutationasset(this)" data-toggle="modal" data-target="#myUpdate" data-id="'.$idatatables->Raw_ID.'" faid="'.$idatatables->FAID.'" class="mutationasset"  ><button class="btn btn-primary btn-xs" type="button" '.($idatatables->Is_trash == 1 || $idatatables->Status == 1) ? "disabled" : "" .'>Mutation</button></a>'
-//                        . '<a><button class="btn '.($idatatables->Is_trash == 0) ? "btn-primary" : "btn-danger".' btn-xs disposal" type="button" faid="'.$idatatables->FAID.'" id="'.$idatatables->Raw_ID.'" '.($idatatables->Is_trash == 1 || $idatatables->Status == 1) ? "disabled" : "" .'> '.($idatatables->Is_trash == 0) ? "Disposal" : "Has Disposal".'</button></a>';
-//            } elseif ($branch <> 1) {
-//                $btn.='<a onclick="setID($idatatables->Raw_ID)" data-toggle="modal" data-target="#myUpdate" data-id="$idatatables->Raw_ID" faid="$idatatables->FAID" class="mutationasset"  ><button class="btn btn-primary btn-xs" type="button" ($idatatables->Is_trash == 1 || $idatatables->Status == 1) ? "disabled" : "" >Mutation</button></a>';
-//            } else {
-//                $btn.='<a onclick="setID($idatatables->Raw_ID)" data-toggle="modal" data-target="#myUpdate" data-id="$idatatables->Raw_ID" faid="$idatatables->FAID" class="mutationasset"  ><button class="btn btn-primary btn-xs" type="button" style="display:none;" ($idatatables->Is_trash == 1 || $idatatables->Status == 1) ? "disabled" : "" >Mutation</button></a>';
-//                $btn.='<a><button class="btn ($idatatables->Is_trash == 0) ? "btn-primary" : "btn-danger" btn-xs disposal" type="button" style="display:none;" faid="$idatatables->FAID" id="$idatatables->Raw_ID" ($idatatables->Is_trash == 1 || $idatatables->Status == 1) ? "disabled" : "" >($idatatables->Is_trash == 0) ? "Disposal" : "Has Disposal" </button></a>';
-//            }
+            if ($idatatables->Is_trash == 0) {
+                $iclass = 'btn-primary';
+            } else {
+                $iclass = 'btn-danger';
+            }
+            if ($idatatables->Is_trash == 1 || $idatatables->Status == 1) {
+                $idisabled = 'disabled';
+            } else {
+                $idisabled = '';
+            }
+            if ($idatatables->Is_trash == 0) {
+                $hd = 'Disposal';
+            } else {
+                $hd = 'Has Disposal';
+            }
+            if ($div == 8 && $branch == 1 && $usergroup <> 3) {
+                $btn.='<a onclick="mutationasset(this)" data-toggle="modal" data-target="#myModal" id="' . $idatatables->Raw_ID . '" name="' . $idatatables->FAID . '" class="mutationasset"  ><button class="btn btn-primary btn-xs" type="button" ' . $idisabled . '>Mutation</button></a>'
+                        . '<a><button onclick="disposal(this)" class="btn btn-xs disposal ' . $iclass . '" type="button" name="' . $idatatables->FAID . '" id="' . $idatatables->Raw_ID . '" ' . $idisabled . '>' . $hd . '</button></a>';
+            } elseif ($branch <> 1) {
+                $btn.='<a onclick="mutationasset(this)" data-toggle="modal" data-target="#myModal" id="' . $idatatables->Raw_ID . '" name="' . $idatatables->FAID . '" class="mutationasset"  ><button class="btn btn-primary btn-xs" type="button" ' . $idisabled . '>Mutation</button></a>';
+            } else {
+                $btn.='<a onclick="mutationasset(this)" data-toggle="modal" data-target="#myModal" id="' . $idatatables->Raw_ID . '" name="' . $idatatables->FAID . '" class="mutationasset"  ><button class="btn btn-primary btn-xs" type="button" ' . $idisabled . '>Mutation</button></a>'
+                        . '<a><button onclick="disposal(this)" class="btn btn-xs disposal ' . $iclass . '" type="button" name="' . $idatatables->FAID . '" id="' . $idatatables->Raw_ID . '" ' . $idisabled . '>' . $hd . '</button></a>';
+            }
             $row[] = '<a data-toggle="modal" data-target="#myModal" id="' . $idatatables->FAID . '" onclick="detilasset(this)"><button class="btn btn-primary btn-xs" type="button" >Depreciation</button></a>' . $btn;
             $data[] = $row;
         }
@@ -175,9 +198,7 @@ class Listasset extends CI_Controller {
         echo json_encode($output);
     }
 
-    public
-            function detilasset($id) {
-
+    public function detilasset($id) {
         $data = $this->assetlist->getDetil($id);
         $icount = count($data);
         $datas = array(
@@ -186,24 +207,140 @@ class Listasset extends CI_Controller {
         );
         $this->load->view('asset_management/listasset/detil_asset', $datas);
     }
-    
-    public function mutationasset($id, $faid) {
-//    $branch = $this->session->userdata('BranchID');
-    $branch = 8;
-    $data = $this->assetlist->getzone();
-    $type = $this->assetlist->gettype($id);
-    $dataUnit = $this->assetlist->getunit($branch);
-//            print_r($dataUnit);die();
-    $datas = array(
-        'zona' => $data,
-        'id' => $id,
-        'faid' => $faid,
-        'type' => $type,
-        'dataUnit' => $dataUnit
-        );
-    $this->load->view('asset_management/listasset/mutation', $datas);
-}
 
+    public function mutationasset($id, $faid) {
+        $branch = $this->session->userdata('BranchID');
+//        $branch = 8;
+        $data = $this->assetlist->getzone();
+        $type = $this->assetlist->gettype($id);
+        $dataUnit = $this->assetlist->getunit($branch);
+//            print_r($dataUnit);die();
+        $datas = array(
+            'zona' => $data,
+            'id' => $id,
+            'faid' => $faid,
+            'type' => $type,
+            'dataUnit' => $dataUnit
+        );
+        $this->load->view('asset_management/listasset/mutation', $datas);
+    }
+
+    public function disposal($id, $faid) {
+        $return=$this->assetlist->disposal($id, $faid);
+        echo json_encode($return);
+    }
+
+    public function mutasi($iid) {
+        $faid = $this->assetlist->setMutasi();
+        $data=$this->generateQR(1, $faid, $iid);
+//        print_r($data);die();
+        $this->load->view('asset_management/listasset/generateqr', $data);
+    }
+
+    function generateQR($status, $faid, $id) {
+        $dataitem = $this->Payment_mdl->gendata_qrmutasi($id);
+        foreach ($dataitem as $row) {
+            //$BranchCode=substr($faid, 12,5);
+            //echo $BranchCode;
+            $array = explode(".", $faid);
+            $kode = substr($array[2], 0, 5);
+
+            $db2 = $this->load->database('config1', true);
+            $sqlBranchCode = $db2->query("SELECT BranchCode FROM Mst_Branch WHERE BranchCode='" . $kode . "'");
+            $BranchCode = '';
+            if (!empty($sqlBranchCode->result())) {
+                $BranchCode = $sqlBranchCode->result()[0]->BranchCode;
+            }
+//                        echo "1. ".$BranchCode."<br>";
+            if ($BranchCode == '') {
+                $sqlDivisionCode = $db2->query("SELECT DivisionCode FROM Mst_Division WHERE DivisionCode='" . $kode . "'");
+                $DivisionCode = '';
+                if (!empty($sqlDivisionCode->result())) {
+                    $DivisionCode = $sqlDivisionCode->result()[0]->DivisionCode;
+                }
+                //                            echo "2. ".$DivisionCode."<br>";
+                if ($DivisionCode == '') {
+                    $field = 'br.BranchName,div.DivisionName,unit.BisUnitName';
+                    $codefix = "LEFT JOIN Mst_BisUnit unit on br.BranchID = unit.BisUnitBranchID
+                                LEFT JOIN Mst_Division div on br.BranchID = div.BranchID
+                                where unit.BisUnitCode = '$kode'";
+                } else {
+                    $field = 'br.BranchName,div.DivisionName,unit.BisUnitName';
+                    $codefix = "LEFT JOIN Mst_Division div on br.BranchID = div.BranchID
+                                LEFT JOIN Mst_BisUnit unit on br.BranchID = unit.BisUnitBranchID
+                                where div.DivisionCode = '$kode'";
+                }
+            } else {
+                $field = 'br.BranchName,div.DivisionName,unit.BisUnitName';
+                $codefix = "LEFT JOIN Mst_Division div on div.DivisionCode = '$kode'"
+                        . "LEFT JOIN Mst_BisUnit unit on unit.BisUnitCode = '$kode'"
+                        . "where br.BranchCode = '$kode'";
+            }
+//                        echo $codefix."<br>";
+//                        die();
+            $qdata = $db2->query("SELECT $field FROM Mst_Branch br $codefix");
+            $qdata = $qdata->result_array();
+            foreach ($qdata as $key) {
+                $BranchName = $key['BranchName'];
+                $DivisionName = $key['DivisionName'];
+                $BisUnitName = $key['BisUnitName'];
+            }
+            if ($DivisionName == '') {
+                $location = "(" . $BisUnitName . ")";
+            } elseif ($BisUnitName == '') {
+                $location = "(" . $DivisionName . ")";
+            } else {
+                $location = $BranchName;
+            }
+            $data = array(
+                'faid' => $faid,
+                'ItemName' => $row->ItemName,
+                'IClassName' => $row->IClassName,
+                'BranchName' => $BranchName,
+                'location' => $location,
+            );
+        }
+        // $this->load->view('payment/generateqr',$data);
+        if ($status == 1)
+            $this->session->set_flashdata('msg', 'Success! Mutation Assets Success');
+        else
+            $this->session->set_flashdata('msg', 'Success! Mutation Item Inventory Success');
+        return $data;
+//        $this->load->view('payment/generateqr', $data);
+    }
+
+    public function getBranch($zone) {
+        $item = $this->assetlist->getbranch($zone);
+        $data = "<option value=''>--Select--</option> ";
+        foreach ($item as $row) {
+            $data .=' <option kode="' . $row->BranchCode . '"  value="' . $row->BranchID . '">' . $row->BranchName . '</option>';
+        }
+        echo $data;
+    }
+
+    public function getdivisi($unit) {
+        $data = $this->assetlist->getdivisi($unit);
+        $list = "<option value=''>--Select--</option>";
+        foreach ($data as $row) {
+            $list .= '<option value="' . $row->DivisionID . '">' . $row->DivisionName . '</option>';
+        }
+
+        echo $list;
+    }
+
+    public function getunit($branch) {
+        $data = $this->assetlist->getunit($branch);
+        $list = "<option value=''>--Select--</option>";
+        foreach ($data as $row) {
+            $list .= '<option value="' . $row->BisUnitID . '">' . $row->BisUnitName . '</option>';
+        }
+
+        echo $list;
+    }
+
+    
+    
+    
 }
 
 /* End of file sec_user.php */

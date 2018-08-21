@@ -621,6 +621,13 @@ Class Listasset_mdl extends CI_Model {
         $this->db2 = $this->load->database('config1', true);
         $this->db2->where('TrxDetItemID', trim($faid));
         $this->db2->update('Depreciation', $data);
+        if ($this->db2->trans_status() === FALSE) {
+            $this->db2->trans_rollback();
+            return false;
+        } else {
+            $this->db2->trans_commit();
+            return true;
+        }
         $this->db2->close();
     }
 

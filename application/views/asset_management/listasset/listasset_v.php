@@ -100,7 +100,7 @@
 
 <!--Modal Termin-->
 <div id="myModal" class="modal fade" >
-    <form class="validator-form form-horizontal" id="datasave" action="" method="POST">
+    <form class="validator-form form-horizontal" id="mutations" action="" method="POST">
         <div class="modal-dialog">
             <!-- Modal content-->
             <div class="modal-content">
@@ -115,6 +115,7 @@
                 </div>
                 <div id="prosessloading"/>
                 <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" name="signup" value="Submit" id="submitmutasi">Mutation</button>
                     <!--<button type="submit" class="btn btn-primary" id="submitterm" name="submitterm" value="Submit">Save</button>-->
                     <button type="button" class="btn btn-default" data-dismiss="modal" id="btn_close" >Close</button>
                 </div>
@@ -123,50 +124,6 @@
     </form>
 </div>
 
-<!--Modal Update-->
-<div id="myUpdate" class="modal fade" tabindex="-1" role="basic" aria-hidden="true">>
-    <form class="validator-form form-horizontal" id="mutations" action="" method="POST">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Mutation Asset</h4>
-                </div>
-                <input type="text" class="hidden" id="data_id" name="data_id">
-                <div id="modal-mutation" class="modal-body2">
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary" name="signup" value="Submit" id="submitmutasi">Mutation</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </form>
-</div>
-
-<!-- Modal UPDATE-->
-<div class="modal fade draggable-modal" id="mdl_Update" tabindex="-1" role="basic" aria-hidden="true">
-    <div class="modal-dialog  modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">                
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title"></h4>
-            </div>
-            <div class="modal-body">
-
-                <div class="modal-footer">
-                    <div class="btnSC">
-                        <!--<button type="button" class="btn btn-success save" onclick="clickUpdate()">Save</button>-->
-                        <!--<button type="button" class="btn btn-success update" onclick="clickUpdate()">Update</button>-->
-                        <button type="button" class="btn btn-warning close_" data-dismiss="modal">Close</button>                
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 
 
