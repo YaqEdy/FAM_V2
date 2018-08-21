@@ -84,6 +84,9 @@
         });
     }
 
+    function search(e) {
+        iSearch = e;
+    }
 
 
 </script>
