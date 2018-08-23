@@ -632,15 +632,16 @@ Class Listasset_mdl extends CI_Model {
     }
 
     function getItemDisposal() {
-        $data = $this->input->post('iddisposal');
+        $data = $this->input->get('iddisposal');
         $in = "";
-
+        $data = explode(",", $data);
         for ($i = 0; $i < count($data); $i++) {
             if ($i == 0)
-                $in .= explode("#", $data[$i])[0];
+                $in .= explode("-", $data[$i])[0];
             else
-                $in .= "," . explode("#", $data[$i])[0];
+                $in .= "," . explode("-", $data[$i])[0];
         }
+//        print_r($in);die();
         $this->db2 = $this->load->database('config1', true);
 
         $division = $this->db2->query("SELECT item.ItemName, trx.QTY, br.BranchName, br.BranchCode, div.DivisionName, trx.PriceVendor, trx.SetDatePayment, trx.Status, trx.FAID

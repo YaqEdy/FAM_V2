@@ -185,8 +185,8 @@ class Listasset extends CI_Controller {
                         . '<a><button onclick="disposal(this)" class="btn btn-xs disposal ' . $iclass . '" type="button" name="' . $idatatables->FAID . '" id="' . $idatatables->Raw_ID . '" ' . $idisabled . '>' . $hd . '</button></a>';
             }
             $row[] = '<a data-toggle="modal" data-target="#myModal" id="' . $idatatables->FAID . '" onclick="detilasset(this)"><button class="btn btn-primary btn-xs" type="button" >Depreciation</button></a>' . $btn;
-            $row[] = $idatatables->Raw_ID;
-            
+            $row[] = $idatatables->Raw_ID . "-" . $idatatables->Status;
+
             $data[] = $row;
         }
 
@@ -341,7 +341,7 @@ class Listasset extends CI_Controller {
     }
 
     public function formdisposal() {
-        if (empty($this->input->post('iddisposal')))
+        if (empty($this->input->get('iddisposal')))
             echo "Check list Item yang akan di disposal !";
         else {
             $this->load->library('word');
@@ -351,7 +351,7 @@ class Listasset extends CI_Controller {
             $header = $section->createHeader();
 
             // Add image elements		
-            $header->addImage(FCPATH . 'assets/img/logo.png', array('width' => 177, 'height' => 40, 'align' => 'left'));
+            $header->addImage(FCPATH . 'metronic/img/logo.png', array('width' => 177, 'height' => 40, 'align' => 'left'));
 
             // Define table style arrays
             $styleTable = array('borderSize' => 6, 'borderColor' => '006699', 'cellMargin' => 80);
@@ -399,92 +399,36 @@ class Listasset extends CI_Controller {
                 $table->addCell(2000)->addText(date('d-m-Y', strtotime($key->SetDatePayment)));
             }
 
-
-
             $footer = $section->createFooter();
             $footer->addText('PT Permodalan Nasional Madani (Persero)');
             $footer->addText('Kantor Pusat : Gedung Arthaloka Lt. 1,6 dan 10 Jl. Jend Sudirman Kav.2-Jakarta 10220 Telp.(021)2511 405 E-mail madani@pnm.co.id, www.pnm.co.id ');
             $filename = 'DISPOSAL.docx'; //save our document as this file name
-            header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document'); //mime type
+             
+             ob_end_clean();
+            header("Content-type: application/vnd.ms-word");
+//            header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document'); //mime type
             header('Content-Disposition: attachment;filename="' . $filename . '"'); //tell browser what's the file name
             header('Cache-Control: max-age=0'); //no cache
+            header("Pragma: no-cache");
+            header("Expires: 0");
 
             $objWriter = PHPWord_IOFactory::createWriter($this->word, 'Word2007');
             $objWriter->save('php://output');
+
         }
     }
 
     public function downloadPDF() {
-        if ($this->input->get('iddisposal')=="")
+        if ($this->input->get('iddisposal') == "")
             echo "Check list Item untuk generate Dokumen QR CODE  !";
         else {
-            $this->load->library('Pdf');
-
-            // $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-            $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-
-            // set document information
-            $pdf->SetCreator(PDF_CREATOR);
-            $pdf->SetAuthor('TRAM');
-            $pdf->SetTitle('QR CODE ASSET');
-            $pdf->SetSubject('TCPDF Tutorial');
-            $pdf->SetKeywords('TCPDF, PDF, example, test, guide');
-
-            // set default header data
-            // $pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE.' 001', PDF_HEADER_STRING, array(0,64,255), array(0,64,128));
-            // $pdf->setFooterData(array(0,64,0), array(0,64,128));
-            // set header and footer fonts
-            // $pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
-            // $pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
-            $pdf->setPrintHeader(false);
-            $pdf->setPrintFooter(false);
-
-            // set default monospaced font
-            // $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
-            // set margins
-            $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
-            $pdf->SetHeaderMargin(1);
-            $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
-
-            // set auto page breaks
-            $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
-
-            // set image scale factor
-            $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
-
-            // set some language-dependent strings (optional)
-            if (@file_exists(dirname(__FILE__) . '/lang/eng.php')) {
-                require_once(dirname(__FILE__) . '/lang/eng.php');
-                $pdf->setLanguageArray($l);
-            }
-
-            // ---------------------------------------------------------
-            // set default font subsetting mode
-            $pdf->setFontSubsetting(true);
-
-            // Set font
-            // dejavusans is a UTF-8 Unicode font, if you only need to courier
-            // print standard ASCII chars, you can use core fonts like
-            // helvetica or times to reduce file size.
-            $pdf->SetFont('dejavusans', '', 14, '', true);
-
-            // Add a page
-            // This method has several options, check the source code documentation for more information.
-            $pdf->AddPage();
-
-            // set text shadow effect
-            // $pdf->setTextShadow(array('enabled'=>true, 'depth_w'=>0.2, 'depth_h'=>0.2, 'color'=>array(196,196,196), 'opacity'=>1, 'blend_mode'=>'Normal'));			
             $tabel = '';
-            $pnm = base_url() . 'assets/img/logo.png';
-            foreach ($this->input->get('iddisposal') as $key => $value) {
-                $id = explode(",", $value);
+            $pnm = base_url() . 'metronic/img/logo.png';
+            $arrData = explode(",", $this->input->get('iddisposal'));
+            foreach ($arrData as $value) {
+                $id = explode("-", $value);
                 $data = $this->assetlist->getItemQR($id[0], $id[1]);
-                $qrcode = base_url() . 'assets/temp/' . $data->FAID . '.png';
-
-
-                //echo $qrcode;die();
-//                                echo '<pre>';
-//                                print_r($data);die();
+                $qrcode = base_url() . 'uploads/qr_code/' . $data->FAID . '.png';
 
                 $BranchName = $data->BranchName;
                 $DivisionName = $data->DivisionName;
@@ -505,7 +449,6 @@ class Listasset extends CI_Controller {
                     $lokasi = strtoupper($BranchName);
                 }
 
-
                 $tabel .= '<table style="height:100px;page-break-inside: avoid;">
                 <tr>
                 <td>
@@ -525,7 +468,7 @@ class Listasset extends CI_Controller {
                 <td>
                 <table border="1" cellpadding="1" cellspacing="1" width="180" height="60" >                                                        
                 <tr>
-                <td style="text-align: center;"><img src="' . $pnm . '" style="width: 200px; height: 25px; "></td>
+                <td style="text-align: center;"><img src="' . $pnm . '" style="width: 200px; height: 55px; "></td>
                 <td rowspan="3" width="28%"><img src="' . $qrcode . '" style="width: 150px; height: 150px; padding: 5px !important"></td> 
                 </tr>
                 <tr>
@@ -539,31 +482,11 @@ class Listasset extends CI_Controller {
                 </tr>
                 </table>    ';
                 $tabel .= '</div>';
-//                                $tabel .= '<table border="1" cellpadding="1" cellspacing="1" width="160" height="9" >                                                        
-//							  <tr>
-//							    <td style="text-align: center;"><img src="'.$pnm.'" style="width: 200px; height: 25px; "></td>
-//							    <td rowspan="3" width="28%"><img src="'.$qrcode.'" style="width: 150px; height: 150px; padding: 5px !important"></td> 
-//							  </tr>
-//							  <tr>
-//							    <td style="text-align: center; font-size: 7px">'.$lokasi.'</td>			    			    			
-//							  </tr>
-//							  <tr>
-//							    <td style="text-align: center; font-size: 6px">'.$data->FAID.'</td>			    			    			
-//							  </tr>
-//							</table>';
-//                                $tabel .= '<div></div>';
+                $tabel .= '<script>window.print()</script>';
             }
-
-
-            $html = <<<EOD
-			$tabel
-EOD;
-
-
-            $pdf->writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
-
-            $pdf->Output('QRCODEASSET.pdf', 'I');
         }
+        
+        echo $tabel;
     }
 
     public function add_disposal() {

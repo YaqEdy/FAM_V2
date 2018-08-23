@@ -11,7 +11,6 @@
     var iddisposal_ = "";
     jQuery(document).ready(function () {
         loadGridMutation();
-        $("#idPDF").attr("href", "<?php echo base_url(); ?>asset_management/listasset/downloadPDF?iddisposal=" + iddisposal_);
 
     });
     // jQuery(document).ready(function () {
@@ -90,6 +89,29 @@
         });
     }
 
+    var iCb = 1;
+    $('#table_gridMutation').on('click', 'input[type="checkbox"]', function (e) {
+        if (iCb == 1) {
+            iddisposal_ = dataTable.columns(12).data().eq(0).sort().unique().join(',');
+            iCb = 0;
+        } else {
+            iCb = 1;
+        }
+        $("#idPDF").attr("href", "<?php echo base_url(); ?>asset_management/listasset/downloadPDF?iddisposal=" + iddisposal_);
+        $("#idWord").attr("href", "<?php echo base_url(); ?>asset_management/listasset/formdisposal?iddisposal=" + iddisposal_);
+    });
+
+    document.querySelector("tbody").addEventListener("change", function (e) {
+        if (e.target.tagName === 'INPUT')
+            var rows_selected = dataTable.column(12).checkboxes.selected();
+        if (iddisposal_ == "") {
+            iddisposal_ = iddisposal_ + rows_selected.join(",");
+        } else {
+            iddisposal_ = rows_selected.join(",");
+        }
+        $("#idPDF").attr("href", "<?php echo base_url(); ?>asset_management/listasset/downloadPDF?iddisposal=" + iddisposal_);
+        $("#idWord").attr("href", "<?php echo base_url(); ?>asset_management/listasset/formdisposal?iddisposal=" + iddisposal_);
+    });
     function detilasset(e) {
         $(".modal-title").html('Depreciation');
         $("#submitmutasi").hide();
@@ -235,14 +257,9 @@
 //    $("#updis").click(function () {
 //        alert("ya");
 //    });
+
     $("form#mutations").on('click', '#updis', function (e) {
-//        harus dirubah on click checkbox datatables
-        var rows_selected = dataTable.column(12).checkboxes.selected();
-         if (iddisposal_ == "") {
-            iddisposal_ = iddisposal_ + rows_selected.join(",");
-        } else {
-            iddisposal_ = rows_selected.join(",");
-        }
+
 
         var file_data = $('#namafile').prop('files')[0];
         var form_data = new FormData();

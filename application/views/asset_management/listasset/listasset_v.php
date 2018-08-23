@@ -76,13 +76,13 @@ $usergroup = $this->session->userdata('groupid');
                                                     <?php
                                                     if ($div == 8 && $branch == 1 && $usergroup <> 3) {
                                                         ?>
-                                                        <a href="<?php echo base_url(); ?>asset_management/listasset/formdisposal" class="btn btn-primary btn-xs" target="_blank"><i class="fa fa-download"></i> disposal</a>                                                    
+                                                        <a href="<?php echo base_url(); ?>asset_management/listasset/formdisposal" id="idWord" class="btn btn-primary btn-xs" target="_blank"><i class="fa fa-download"></i> disposal</a>                                                    
                                                         <a data-toggle="modal" data-target="#myModal" class="btn btn-warning btn-xs text-right" onclick="uploaddisposal()"><i class="fa fa-upload" /> Disposal</a> 
                                                     <?php } else { ?>
-                                                        <a href="<?php echo base_url(); ?>asset_management/listasset/formdisposal" class="btn btn-primary btn-xs" target="_blank" style="display:none;"><i class="fa fa-download"></i> disposal</a>                                                    
+                                                        <a href="<?php echo base_url(); ?>asset_management/listasset/formdisposal" id="idWord" class="btn btn-primary btn-xs" target="_blank"><i class="fa fa-download"></i> disposal</a>                                                    
                                                         <a data-toggle="modal" data-target="#myModal" class="btn btn-warning btn-xs text-right" onclick="uploaddisposal()" style="display:none;"><i class="fa fa-upload"></i> Disposal</a> 
                                                     <?php } ?>
-                                                        <a href="<?php echo base_url(); ?>asset_management/listasset/downloadPDF" id="idPDF" class="btn btn-success btn-xs" >QR Code</a>                                                    
+                                                        <a href="<?php echo base_url(); ?>asset_management/listasset/downloadPDF" id="idPDF" class="btn btn-success btn-xs" target="_blank">QR Code</a>                                                    
                                                 </th>
                                                 <th></th>
                                             </tr>
