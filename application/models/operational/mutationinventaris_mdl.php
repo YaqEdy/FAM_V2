@@ -244,9 +244,9 @@ Class Mutationinventaris_mdl extends CI_Model {
     function getBranchFromCode($id) {
         $this->db2 = $this->load->database('config1', true);
         $data = $this->db2->query("SELECT br.BranchName , div.DivisionName, br.BranchCode
-									FROM Mst_Branch br
-									LEFT JOIN Mst_Division div ON div.BranchID = br.BranchID									
-									where br.Is_trash=0 AND (br.BranchCode=" . $id . " OR div.DivisionCode=" . $id . ")");
+                                FROM Mst_Branch br
+                                LEFT JOIN Mst_Division div ON div.BranchID = br.BranchID									
+                                where br.Is_trash=0 AND (br.BranchCode=" . $id . " OR div.DivisionCode=" . $id . ")");
         return $data->row();
     }
 

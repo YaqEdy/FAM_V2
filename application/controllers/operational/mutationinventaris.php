@@ -107,26 +107,20 @@ class Mutationinventaris extends CI_Controller {
         $data = array();
         $no = $_POST['start'];
         foreach ($list as $idatatables) {
-            $tujuan = $this->mutation->getBranchFromCode(substr($idatatables->FAID, 11, 5));
+//            $tujuan = $this->mutation->getBranchFromCode(substr($idatatables->FAID, 11, 5));
+            $tujuan = $this->mutation->getBranchFromCode('00167');
             $irow = '';
             if (!empty($idatatables->FAID)) {
                 $irow = '<a href=" base_url()assets/temp/ trim($idatatables->FAID)" download=" trim($idatatables->FAID)"><img src="base_url(); ?>assets/temp/ trim($idatatables->FAID)" style="width: 30px; height:30px"></a>';
             }
-            if ((int) $idatatables->BranchCode == 00000) {
-                $irow2 = $idatatables->BranchName . ' - ' . $idatatables->DivisionName;
-            } elseif ((int) $tujuan->BranchCode == 00000) {
-                $irow2 = $idatatables->BranchName . ' => <strong>' . $tujuan->DivisionName;
-            } else {
-                $irow2 = $idatatables->BranchName . ' => <strong>' . $tujuan->BranchName . '</strong>';
-            }
-
 
             $no++;
             $row = array();
             $row[] = $no;
 
             $row[] = $idatatables->ZoneName;
-            $row[] = $irow2;
+            $row[] = ((int) $idatatables->BranchCode == 00000) ? $idatatables->BranchName . ' - ' . $idatatables->DivisionName : $idatatables->BranchName . ' => <strong>'
+                    . ((int) $tujuan->BranchCode == 00000) ? $tujuan->DivisionName : $tujuan->BranchName . '</strong>';
             $row[] = $idatatables->FAID;
             $row[] = $idatatables->ItemName;
             $row[] = $idatatables->QTY;
