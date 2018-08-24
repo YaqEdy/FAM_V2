@@ -90,9 +90,9 @@ class Opex extends CI_Controller {
         $iwhere3 = array();
         if ($branch == 1) { //JIKA PUSAT : semua ppi bisa lihat data kecuali ppi dengan usergroup support
             if (($div == '8' && $usergroup <> '3') || $div == '20' || $usergroup == '1') {
-//                $iwhere1 = array($this->input->post('sSearch') => $_POST['search']['value']);
+                $iwhere1 = array($this->input->post('sSearch') => $_POST['search']['value']);
             } else {
-//                $iwhere2 = array('DivisionID' => $div);
+                $iwhere2 = array('DivisionID' => $div);
             }
         } else { //JIKA CABANG : cabang hanya bisa melihat cabang dan divisinya saja
             $iwhere3 = array('BranchID' => $branch);

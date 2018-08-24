@@ -4,7 +4,7 @@ if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 date_default_timezone_set('Asia/Jakarta');
 
-class Mutationinventaris extends CI_Controller {
+class Inventaris extends CI_Controller {
 
     function __construct() {
         parent::__construct();
@@ -13,6 +13,7 @@ class Mutationinventaris extends CI_Controller {
         $this->load->model('admin/konfigurasi_menu_status_user_m');
 //        $this->load->model('zsessions_m');
         $this->load->model('global_m');
+        $this->load->model('operational/inventaris_mdl', 'inventaris');
         $this->load->model('datatables_custom');
 
 //        $sess = $this->zsessions_m->get_sess_data();
@@ -38,7 +39,7 @@ class Mutationinventaris extends CI_Controller {
     }
 
     function home() {
-        $menuId = $this->home_m->get_menu_id('operational/mutationinventaris/home');
+        $menuId = $this->home_m->get_menu_id('operational/inventaris/home');
         $data['menu_id'] = $menuId[0]->menu_id;
         $data['menu_parent'] = $menuId[0]->parent;
         $data['menu_nama'] = $menuId[0]->menu_nama;
@@ -63,7 +64,7 @@ class Mutationinventaris extends CI_Controller {
 
                 $data['statususer'] = $this->global_m->tampil_id_desk('sec_status_user', 'statususer_id', 'statususer_desc', 'statususer_id');
                 $this->template->set('title', 'Term Of Payment');
-                $this->template->load('template/template_dataTable', 'operational/mutationinventaris/mutationinventaris_v', $data);
+                $this->template->load('template/template_dataTable', 'operational/inventaris/inventaris_v', $data);
             }
         } else {
             $data['multilevel'] = $this->user_m->get_data(0, $this->session->userdata('usergroup'));
@@ -73,24 +74,29 @@ class Mutationinventaris extends CI_Controller {
             $data['statususer'] = $this->global_m->tampil_id_desk('sec_status_user', 'statususer_id', 'statususer_desc', 'statususer_id');
 
             $this->template->set('title', 'Term Of Payment');
-            $this->template->load('template/template_dataTable', 'operational/mutationinventaris/mutationinventaris_v', $data);
+            $this->template->load('template/template_dataTable', 'operational/inventaris/inventaris_v', $data);
         }
     }
 
     public function ajax_GridMutation() {
-//        dari login
-//        $sessid = $this->session->userdata('usergroup');
-//        $method = $this->uri->segment('2');
-//        $accesdata = $this->Menu_mdl->get_menusetting2($sessid, $method);
+        $lokasi = $this->inventaris->getLokasi($this->session->userdata('id_user'));
+        $kodebranch = $this->inventaris->getCodeBranch($lokasi->BranchID);
+        if ((int) $kodebranch == 00000) { //pusat
+            $kodecabang = $this->inventaris->getCodeDivisi($lokasi->DivisionID);
+        } else {
+            $kodecabang = $kodebranch;
+        }
         $div = $this->session->userdata('DivisionID');
         $branch = $this->session->userdata('BranchID');
         $usergroup = $this->session->userdata('groupid');
         $iwhere1 = array($this->input->post('sSearch') => $_POST['search']['value']);
         $iwhere2 = array();
         $iwhere3 = array();
+        $param_in = 'Status';
+        $iOrWhere = array('Status'=>4,'kode_cab'=>$kodecabang);
         if ($branch == 1) { //JIKA PUSAT : semua ppi bisa lihat data kecuali ppi dengan usergroup support
             if (($div == '8' && $usergroup <> '3') || $div == '20' || $usergroup == '1') {
-                $iwhere1 = array($this->input->post('sSearch') => $_POST['search']['value']);
+//                $iwhere1 = array($this->input->post('sSearch') => $_POST['search']['value']);
             } else {
                 $iwhere2 = array('DivisionID' => $div);
             }
@@ -98,10 +104,16 @@ class Mutationinventaris extends CI_Controller {
             $iwhere3 = array('BranchID' => $branch);
         }
 
+        if ($_POST['search']['value'] != "") {
+            $where_in = array(9, 4);
+        } else {
+            $where_in = array(1, 3);
+//            $where_in = array(9, 4, 2);
+        }
         $iwhere = array_merge($iwhere1, $iwhere2, $iwhere3);
-        $icolumn = array('ZoneName','BranchDivName','FAID','ItemName','QTY', 'BranchName', 'BranchCode', 'BisUnitName', 'DivisionName', 'Raw_ID', 'Period', 'PriceVendor', 'SetDatePayment', 'Condition');
+        $icolumn = array('ZoneName', 'BranchDivName', 'FAID', 'ItemName', 'QTY', 'ClassCode', 'ReqTypeID', 'BranchName', 'BranchCode', 'DivisionName', 'Raw_ID', 'Period', 'PriceVendor', 'SetDatePayment', 'Status', 'Is_trash', 'kode_cab');
         $iorder = array('Raw_ID' => 'asc');
-        $list = $this->datatables_custom->get_datatables('vw_opr_mutationinventaris', $icolumn, $iorder, $iwhere);
+        $list = $this->datatables_custom->get_datatables('vw_opr_inventaris', $icolumn, $iorder, $iwhere, $where_in, $param_in, array(), null,$iOrWhere);
 
         $data = array();
         $no = $_POST['start'];
@@ -117,8 +129,6 @@ class Mutationinventaris extends CI_Controller {
 
             $row[] = $idatatables->ZoneName;
             $row[] = $idatatables->BranchDivName;
-//            $row[] = ((int) $idatatables->BranchCode == 00000) ? $idatatables->BranchName . ' - ' . $idatatables->DivisionName : $idatatables->BranchName . ' => <strong>'
-//                    . ((int) $tujuan->BranchCode == 00000) ? $tujuan->DivisionName : $tujuan->BranchName . '</strong>';
             $row[] = $idatatables->FAID;
             $row[] = $idatatables->ItemName;
             $row[] = $idatatables->QTY;
