@@ -107,8 +107,8 @@ class Inventaris extends CI_Controller {
         if ($_POST['search']['value'] != "") {
             $where_in = array(9, 4);
         } else {
-            $where_in = array(1, 3);
-//            $where_in = array(9, 4, 2);
+//            $where_in = array(1, 3);
+            $where_in = array(9, 4, 2);
         }
         $iwhere = array_merge($iwhere1, $iwhere2, $iwhere3);
         $icolumn = array('ZoneName', 'BranchDivName', 'FAID', 'ItemName', 'QTY', 'ClassCode', 'ReqTypeID', 'BranchName', 'BranchCode', 'DivisionName', 'Raw_ID', 'Period', 'PriceVendor', 'SetDatePayment', 'Status', 'Is_trash', 'kode_cab');
