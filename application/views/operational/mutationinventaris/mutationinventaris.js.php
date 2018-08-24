@@ -3,7 +3,7 @@
     var iSearch = 'BranchName';
 
     jQuery(document).ready(function () {
-        loadGridOpex();
+        loadGridMutation();
 
     });
     // jQuery(document).ready(function () {
@@ -15,8 +15,8 @@
         iSearch = e;
     }
     
-    function loadGridOpex() {
-        dataTable = $('#table_gridOpex').DataTable({
+    function loadGridMutation() {
+        dataTable = $('#table_gridMutation').DataTable({
             dom: 'C<"clear">l<"toolbar">frtip',
             initComplete: function () {
                 $("div.toolbar").append('<div class="col-md-8">\n\
@@ -41,16 +41,16 @@
             "processing": true,
             "serverSide": true,
             "ajax": {
-                url: "<?php echo base_url("operational/mutationinventaris/ajax_GridOpex"); ?>", // json datasource
+                url: "<?php echo base_url("operational/mutationinventaris/ajax_GridMutation"); ?>", // json datasource
                 type: "post", // method  , by default get
                 data: function (z) {
                     z.sSearch = iSearch;
                 },
                 error: function () {  // error handling
-                    $(".table_gridOpex-error").html("");
+                    $(".table_gridMutation-error").html("");
                     // $("#lookup").append('<tbody class="employee-grid-error"><tr><th colspan="3">No data found in the server</th></tr></tbody>');
-                    $('#table_gridOpex tbody').html('<tbody class="employee-grid-error"><tr><th colspan="4">No data found in the server</th></tr></tbody>');
-                    $("#table_gridOpex_processing").css("display", "none");
+                    $('#table_gridMutation tbody').html('<tbody class="employee-grid-error"><tr><th colspan="4">No data found in the server</th></tr></tbody>');
+                    $("#table_gridMutation_processing").css("display", "none");
 
                 }
             },

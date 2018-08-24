@@ -44,7 +44,7 @@
                                                                 </div>-->
                                 <div class="col-md-12">
 
-                                    <table class="table table-striped table-bordered table-hover text_kanan" id="table_gridOpex">
+                                    <table class="table table-striped table-bordered table-hover text_kanan" id="table_gridMutation">
                                         <thead>
                                             <tr>
                                                 <th>NO</th>     

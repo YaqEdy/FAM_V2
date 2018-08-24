@@ -13,7 +13,6 @@ class Mutationinventaris extends CI_Controller {
         $this->load->model('admin/konfigurasi_menu_status_user_m');
 //        $this->load->model('zsessions_m');
         $this->load->model('global_m');
-        $this->load->model('operational/mutationinventaris_mdl', 'mutation');
         $this->load->model('datatables_custom');
 
 //        $sess = $this->zsessions_m->get_sess_data();
@@ -78,7 +77,7 @@ class Mutationinventaris extends CI_Controller {
         }
     }
 
-    public function ajax_GridOpex() {
+    public function ajax_GridMutation() {
 //        dari login
 //        $sessid = $this->session->userdata('usergroup');
 //        $method = $this->uri->segment('2');
@@ -100,18 +99,16 @@ class Mutationinventaris extends CI_Controller {
         }
 
         $iwhere = array_merge($iwhere1, $iwhere2, $iwhere3);
-        $icolumn = array('ItemName', 'ZoneName', 'BranchName', 'BranchCode', 'BisUnitName', 'DivisionName', 'QTY', 'Raw_ID', 'FAID', 'Period', 'PriceVendor', 'SetDatePayment', 'Condition');
+        $icolumn = array('ZoneName','BranchDivName','FAID','ItemName','QTY', 'BranchName', 'BranchCode', 'BisUnitName', 'DivisionName', 'Raw_ID', 'Period', 'PriceVendor', 'SetDatePayment', 'Condition');
         $iorder = array('Raw_ID' => 'asc');
         $list = $this->datatables_custom->get_datatables('vw_opr_mutationinventaris', $icolumn, $iorder, $iwhere);
 
         $data = array();
         $no = $_POST['start'];
         foreach ($list as $idatatables) {
-//            $tujuan = $this->mutation->getBranchFromCode(substr($idatatables->FAID, 11, 5));
-            $tujuan = $this->mutation->getBranchFromCode('00167');
             $irow = '';
             if (!empty($idatatables->FAID)) {
-                $irow = '<a href=" base_url()assets/temp/ trim($idatatables->FAID)" download=" trim($idatatables->FAID)"><img src="base_url(); ?>assets/temp/ trim($idatatables->FAID)" style="width: 30px; height:30px"></a>';
+                $irow = '<a href=" base_url()uploads/qr_code/ trim($idatatables->FAID)" download=" trim($idatatables->FAID)"><img src="base_url(); ?>uploads/qr_code/ trim($idatatables->FAID)" style="width: 30px; height:30px"></a>';
             }
 
             $no++;
@@ -119,8 +116,9 @@ class Mutationinventaris extends CI_Controller {
             $row[] = $no;
 
             $row[] = $idatatables->ZoneName;
-            $row[] = ((int) $idatatables->BranchCode == 00000) ? $idatatables->BranchName . ' - ' . $idatatables->DivisionName : $idatatables->BranchName . ' => <strong>'
-                    . ((int) $tujuan->BranchCode == 00000) ? $tujuan->DivisionName : $tujuan->BranchName . '</strong>';
+            $row[] = $idatatables->BranchDivName;
+//            $row[] = ((int) $idatatables->BranchCode == 00000) ? $idatatables->BranchName . ' - ' . $idatatables->DivisionName : $idatatables->BranchName . ' => <strong>'
+//                    . ((int) $tujuan->BranchCode == 00000) ? $tujuan->DivisionName : $tujuan->BranchName . '</strong>';
             $row[] = $idatatables->FAID;
             $row[] = $idatatables->ItemName;
             $row[] = $idatatables->QTY;
