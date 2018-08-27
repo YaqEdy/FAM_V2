@@ -3,11 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Bitnami/wampstack-5.5.29-1/apache2/htdocs/pnm_system/application/views/procurement/purchase_request.js.php</file>
-            <file>file:/C:/Bitnami/wampstack-5.5.29-1/apache2/htdocs/pnm_system/application/models/procurement/requestproc_mdl.php</file>
-            <file>file:/C:/Bitnami/wampstack-5.5.29-1/apache2/htdocs/pnm_system/application/controllers/procurement/purchase_request.php</file>
-            <file>file:/C:/Bitnami/wampstack-5.5.29-1/apache2/htdocs/pnm_system/application/models/global_m.php</file>
-            <file>file:/C:/Bitnami/wampstack-5.5.29-1/apache2/htdocs/pnm_system/application/views/procurement/purchase_request_v.php</file>
+            <file>file:/C:/Bitnami/wampstack-5.5.29-1/apache2/htdocs/Fam_V2/application/views/operational/inventaris/inventaris.js.php</file>
+            <file>file:/C:/Bitnami/wampstack-5.5.29-1/apache2/htdocs/Fam_V2/application/views/operational/inventaris/inventaris_v.php</file>
+            <file>file:/C:/Bitnami/wampstack-5.5.29-1/apache2/htdocs/Fam_V2/application/models/operational/inventaris_mdl.php</file>
+            <file>file:/C:/Bitnami/wampstack-5.5.29-1/apache2/htdocs/Fam_V2/application/controllers/operational/inventaris.php</file>
+            <file>file:/C:/Bitnami/wampstack-5.5.29-1/apache2/htdocs/Fam_V2/application/models/datatables_custom.php</file>
         </group>
     </open-files>
 </project-private>
