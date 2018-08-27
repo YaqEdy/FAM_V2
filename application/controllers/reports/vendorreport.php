@@ -14,9 +14,7 @@ class Vendorreport extends CI_Controller {
 //        $this->load->model('zsessions_m');
         $this->load->model('global_m');
         $this->load->model('reports/vendorreport_mdl', 'report');
-        $this->load->model('asset_management/payment_mdl', 'Payment_mdl');
-        $this->load->model('asset_management/listasset_mdl', 'assetlist');
-        $this->load->model('datatables_custom');
+//        $this->load->model('datatables_custom');
 
 //        $sess = $this->zsessions_m->get_sess_data();
 //        echo '<pre>';print_r($sess);  
@@ -84,7 +82,7 @@ class Vendorreport extends CI_Controller {
         }
     }
 
-    public function ajax_GridMutation_() {
+    public function ajax_GridVendor() {
         $this->CI = & get_instance(); //and a.kcab_id<>'1100'
 //        $iPID = trim($this->input->post('sPID'));
         $rows = $this->report->getVendorAll();

@@ -100,7 +100,7 @@ $usergroup = $this->session->userdata('groupid');
                                 <div class="col-md-12">
                                     <br>
                                     <div id="divGrid" hidden>
-                                        <table class="table table-striped table-bordered table-hover text_kanan" id="table_gridMutation">
+                                        <table class="table table-striped table-bordered table-hover text_kanan" id="table_gridVendor">
                                             <thead>
                                                 <tr>
                                                     <th></th>     
@@ -158,33 +158,6 @@ $usergroup = $this->session->userdata('groupid');
 
 
 <!-- END PAGE CONTENT-->
-
-<!--Modal Termin-->
-<div id="myModal" class="modal fade" >
-    <form class="validator-form form-horizontal" id="mutations" action="" method="POST">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Set Termin</h4>
-                </div>
-                <div class="modal-body" >
-
-                    <div id="bodyDetail" ></div>
-
-                </div>
-                <div id="prosessloading"/>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary" name="signup" value="Submit" id="submitmutasi">Mutation</button>
-                    <button type="button" class="btn btn-primary" id="updis" name="signup" value="Submit" hidden>Save</button>
-                    <!--<button type="submit" class="btn btn-primary" id="submitterm" name="submitterm" value="Submit">Save</button>-->
-                    <button type="button" class="btn btn-default" data-dismiss="modal" id="btn_close" >Close</button>
-                </div>
-            </div>
-        </div>
-    </form>
-</div>
 
 
 
