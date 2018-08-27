@@ -43,7 +43,7 @@ $usergroup = $this->session->userdata('groupid');
                             <div class="row">
                                 <form id="fm_param">
                                     <div class="col-md-12">
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <!--<label>Tanggal</label>-->
                                             <div class="input-group input-medium date-picker input-daterange" data-date="" data-date-format="dd-mm-yyyy">
                                                 <input type="text" class="form-control" name="from" id="from" required>
@@ -93,8 +93,8 @@ $usergroup = $this->session->userdata('groupid');
                                     </div>
                                     <div class="col-md-12">
                                         <br>
-                                        <button type="submit" class="btn blue" >Search</button>
-                                        <a class="btn yellow" style="display: none" id="id_downlod" href="" >Download as Excel</a>
+                                        <button type="submit" class="btn blue" ><i class="fa fa-search"></i> Search</button>
+                                        <a class="btn yellow" style="display: none" id="id_downlod" href="" ><i class="fa fa-download"></i> Download as Excel</a>
                                     </div>
                                 </form>
                                 <div class="col-md-12">
