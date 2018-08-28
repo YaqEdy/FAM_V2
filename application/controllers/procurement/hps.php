@@ -8,13 +8,17 @@ class Hps extends CI_Controller {
 
     function __construct() {
         parent::__construct();
-        session_start();
-        $this->load->model('home_m');
-        $this->load->model('admin/konfigurasi_menu_status_user_m');
+        if ($this->session->userdata("is_login") === FALSE) {
+            $this->sso->log_sso();
+        } else {
+            session_start();
+            $this->load->model('home_m');
+            $this->load->model('admin/konfigurasi_menu_status_user_m');
 //        $this->load->model('zsessions_m');
-        $this->load->model('global_m');
-        $this->load->model('procurement/hps_mdl', 'hps');
-        $this->load->model('datatables_custom');
+            $this->load->model('global_m');
+            $this->load->model('procurement/hps_mdl', 'hps');
+            $this->load->model('datatables_custom');
+        }
     }
 
     public function index() {
@@ -38,38 +42,19 @@ class Hps extends CI_Controller {
         $this->auth->cek_menu($data['menu_id']);
         $data['group_user'] = $this->konfigurasi_menu_status_user_m->get_status_user();
         //$data['level_user'] = $this->sec_user_m->get_level_user();
-        if (isset($_POST["idTmpAksiBtn"])) {
-            $act = $_POST["idTmpAksiBtn"];
-            if ($act == 1) {
-                $this->simpan();
-            } elseif ($act == 2) {
-                $this->ubah();
-            } elseif ($act == '3') {
-                $this->hapus();
-            } else {
-                $data['multilevel'] = $this->user_m->get_data(0, $this->session->userdata('usergroup'));
-                $data['menu_all'] = $this->user_m->get_menu_all(0);
-                $data['karyawan'] = $this->global_m->tampil_id_desk('master_karyawan', 'id_kyw', 'nama_kyw', 'id_kyw');
-                $data['goluser'] = $this->global_m->tampil_id_desk('sec_gol_user', 'goluser_id', 'goluser_desc', 'goluser_id');
 
-                $data['statususer'] = $this->global_m->tampil_id_desk('sec_status_user', 'statususer_id', 'statususer_desc', 'statususer_id');
-                $this->template->set('title', 'HPS');
-                $this->template->load('template/template_dataTable', 'master_itemcategory_v', $data);
-            }
-        } else {
-            $data['multilevel'] = $this->user_m->get_data(0, $this->session->userdata('usergroup'));
-            $data['menu_all'] = $this->user_m->get_menu_all(0);
-            $data['karyawan'] = $this->global_m->tampil_id_desk('master_karyawan', 'id_kyw', 'nama_kyw', 'id_kyw');
-            $data['goluser'] = $this->global_m->tampil_id_desk('sec_gol_user', 'goluser_id', 'goluser_desc', 'goluser_id');
-            $data['statususer'] = $this->global_m->tampil_id_desk('sec_status_user', 'statususer_id', 'statususer_desc', 'statususer_id');
+        $data['multilevel'] = $this->user_m->get_data(0, $this->session->userdata('usergroup'));
+        $data['menu_all'] = $this->user_m->get_menu_all(0);
+//            $data['karyawan'] = $this->global_m->tampil_id_desk('master_karyawan', 'id_kyw', 'nama_kyw', 'id_kyw');
+//            $data['goluser'] = $this->global_m->tampil_id_desk('sec_gol_user', 'goluser_id', 'goluser_desc', 'goluser_id');
+//            $data['statususer'] = $this->global_m->tampil_id_desk('sec_status_user', 'statususer_id', 'statususer_desc', 'statususer_id');
 
-            $this->template->set('title', 'HPS');
-            $this->template->load('template/template_dataTable', 'procurement/hps/hps_v', $data);
-        }
+        $this->template->set('title', 'HPS');
+        $this->template->load('template/template_dataTable', 'procurement/hps/hps_v', $data);
     }
 
     public function ajax_GridHPS() {
-        $icolumn = array('HpsID','ZoneName','ItemName','Price','StartDate','EndDate','ZoneID');
+        $icolumn = array('HpsID', 'ZoneName', 'ItemName', 'Price', 'StartDate', 'EndDate', 'ZoneID');
 //        $icolumn = array('HpsID');
         $iwhere = array(
             'ZoneID' => $this->input->post('sZone'),

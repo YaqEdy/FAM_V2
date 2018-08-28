@@ -4,7 +4,7 @@ if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 date_default_timezone_set('Asia/Jakarta');
 
-class Vendorreport extends CI_Controller {
+class Rentreport extends CI_Controller {
 
     function __construct() {
         parent::__construct();
@@ -14,10 +14,8 @@ class Vendorreport extends CI_Controller {
             session_start();
             $this->load->model('home_m');
             $this->load->model('admin/konfigurasi_menu_status_user_m');
-//        $this->load->model('zsessions_m');
             $this->load->model('global_m');
-            $this->load->model('reports/vendorreport_mdl', 'report');
-//        $this->load->model('datatables_custom');
+            $this->load->model('reports/rentreport_mdl', 'report');
         }
     }
 
@@ -33,7 +31,7 @@ class Vendorreport extends CI_Controller {
     }
 
     function home() {
-        $menuId = $this->home_m->get_menu_id('reports/vendorreport/home');
+        $menuId = $this->home_m->get_menu_id('reports/rentreport/home');
         $data['menu_id'] = $menuId[0]->menu_id;
         $data['menu_parent'] = $menuId[0]->parent;
         $data['menu_nama'] = $menuId[0]->menu_nama;
@@ -42,26 +40,23 @@ class Vendorreport extends CI_Controller {
         $this->auth->cek_menu($data['menu_id']);
         $data['group_user'] = $this->konfigurasi_menu_status_user_m->get_status_user();
 
-        $data['vendor'] = $this->report->getVendor();
+//        $data['vendor'] = $this->report->getVendor();
         $data['cabang'] = $this->report->getBranchDivisi();
-
-        //$data['level_user'] = $this->sec_user_m->get_level_user();
-
+//        print_r($data);die();
         $data['multilevel'] = $this->user_m->get_data(0, $this->session->userdata('usergroup'));
         $data['menu_all'] = $this->user_m->get_menu_all(0);
-//            $data['karyawan'] = $this->global_m->tampil_id_desk('master_karyawan', 'id_kyw', 'nama_kyw', 'id_kyw');
-//            $data['goluser'] = $this->global_m->tampil_id_desk('sec_gol_user', 'goluser_id', 'goluser_desc', 'goluser_id');
-//            $data['statususer'] = $this->global_m->tampil_id_desk('sec_status_user', 'statususer_id', 'statususer_desc', 'statususer_id');
+//        $data['statususer'] = $this->global_m->tampil_id_desk('sec_status_user', 'statususer_id', 'statususer_desc', 'statususer_id');
 
-        $this->template->set('title', 'Vendor report');
-        $this->template->load('template/template_dataTable', 'reports/vendorreport/vendorreport_v', $data);
+        $this->template->set('title', 'Rent report');
+        $this->template->load('template/template_dataTable', 'reports/rentreport/rentreport_v', $data);
     }
 
     public function ajax_GridVendor() {
         $this->CI = & get_instance(); //and a.kcab_id<>'1100'
 //        $iPID = trim($this->input->post('sPID'));
-        $rows = $this->report->getVendorAll();
-//        print_r($rows);die();
+        $rows = $this->report->getRentAll();
+        print_r($rows);
+        die();
         $data['data'] = array();
         $no = 1;
         foreach ($rows as $row) {

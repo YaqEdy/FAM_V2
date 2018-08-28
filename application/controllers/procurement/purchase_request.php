@@ -4,10 +4,13 @@ if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 date_default_timezone_set('Asia/Jakarta');
 
-class purchase_request extends CI_Controller {
+class Purchase_request extends CI_Controller {
 
     function __construct() {
         parent::__construct();
+                if ($this->session->userdata("is_login") === FALSE) {
+            $this->sso->log_sso();
+        } else {
         session_start();
         $this->load->model('home_m');
         $this->load->model('admin/konfigurasi_menu_status_user_m');
@@ -18,17 +21,7 @@ class purchase_request extends CI_Controller {
         $this->load->model('procurement/menu_mdl', 'Menu_mdl');
         $this->load->model('datatables');
         $this->load->model('datatables_custom');
-
-//        $this->load->model('datatables/datatables_like','datatables_like');
-//        $sess = $this->zsessions_m->get_sess_data();
-//        echo '<pre>';print_r($sess);  
-//        if (sizeof($sess) > 0) {
-//            $this->userid = $sess->id_user;
-//            $this->username = $sess->username;
-//            $this->role = $sess->usergroup_desc;
-//        } else {
-//            redirect('main/logout');
-//        }
+        }
     }
 
     public function index() {
@@ -55,13 +48,13 @@ class purchase_request extends CI_Controller {
 
         $data['multilevel'] = $this->user_m->get_data(0, $this->session->userdata('usergroup'));
         $data['menu_all'] = $this->user_m->get_menu_all(0);
-        $data['karyawan'] = $this->global_m->tampil_id_desk('master_karyawan', 'id_kyw', 'nama_kyw', 'id_kyw');
-        $data['goluser'] = $this->global_m->tampil_id_desk('sec_gol_user', 'goluser_id', 'goluser_desc', 'goluser_id');
-        $data['statususer'] = $this->global_m->tampil_id_desk('sec_status_user', 'statususer_id', 'statususer_desc', 'statususer_id');
+//        $data['karyawan'] = $this->global_m->tampil_id_desk('master_karyawan', 'id_kyw', 'nama_kyw', 'id_kyw');
+//        $data['goluser'] = $this->global_m->tampil_id_desk('sec_gol_user', 'goluser_id', 'goluser_desc', 'goluser_id');
+//        $data['statususer'] = $this->global_m->tampil_id_desk('sec_status_user', 'statususer_id', 'statususer_desc', 'statususer_id');
 
         $data['selreqtype'] = $this->Requestproc_mdl->selreqtype();
 
-        $this->template->set('title', 'Budget Capex');
+        $this->template->set('title', 'Purchase Request');
         $this->template->load('template/template_dataTable', 'procurement/purchase_request/purchase_request_v', $data);
     }
 

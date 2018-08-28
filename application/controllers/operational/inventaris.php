@@ -8,23 +8,17 @@ class Inventaris extends CI_Controller {
 
     function __construct() {
         parent::__construct();
-        session_start();
-        $this->load->model('home_m');
-        $this->load->model('admin/konfigurasi_menu_status_user_m');
+        if ($this->session->userdata("is_login") === FALSE) {
+            $this->sso->log_sso();
+        } else {
+            session_start();
+            $this->load->model('home_m');
+            $this->load->model('admin/konfigurasi_menu_status_user_m');
 //        $this->load->model('zsessions_m');
-        $this->load->model('global_m');
-        $this->load->model('operational/inventaris_mdl', 'inventaris');
-        $this->load->model('datatables_custom');
-
-//        $sess = $this->zsessions_m->get_sess_data();
-//        echo '<pre>';print_r($sess);  
-//        if (sizeof($sess) > 0) {
-//            $this->userid = $sess->id_user;
-//            $this->username = $sess->username;
-//            $this->role = $sess->usergroup_desc;
-//        } else {
-//            redirect('main/logout');
-//        }
+            $this->load->model('global_m');
+            $this->load->model('operational/inventaris_mdl', 'inventaris');
+            $this->load->model('datatables_custom');
+        }
     }
 
     public function index() {
@@ -48,34 +42,15 @@ class Inventaris extends CI_Controller {
         $this->auth->cek_menu($data['menu_id']);
         $data['group_user'] = $this->konfigurasi_menu_status_user_m->get_status_user();
         //$data['level_user'] = $this->sec_user_m->get_level_user();
-        if (isset($_POST["idTmpAksiBtn"])) {
-            $act = $_POST["idTmpAksiBtn"];
-            if ($act == 1) {
-                $this->simpan();
-            } elseif ($act == 2) {
-                $this->ubah();
-            } elseif ($act == '3') {
-                $this->hapus();
-            } else {
-                $data['multilevel'] = $this->user_m->get_data(0, $this->session->userdata('usergroup'));
-                $data['menu_all'] = $this->user_m->get_menu_all(0);
-                $data['karyawan'] = $this->global_m->tampil_id_desk('master_karyawan', 'id_kyw', 'nama_kyw', 'id_kyw');
-                $data['goluser'] = $this->global_m->tampil_id_desk('sec_gol_user', 'goluser_id', 'goluser_desc', 'goluser_id');
-
-                $data['statususer'] = $this->global_m->tampil_id_desk('sec_status_user', 'statususer_id', 'statususer_desc', 'statususer_id');
-                $this->template->set('title', 'Term Of Payment');
-                $this->template->load('template/template_dataTable', 'operational/inventaris/inventaris_v', $data);
-            }
-        } else {
+      
             $data['multilevel'] = $this->user_m->get_data(0, $this->session->userdata('usergroup'));
             $data['menu_all'] = $this->user_m->get_menu_all(0);
-            $data['karyawan'] = $this->global_m->tampil_id_desk('master_karyawan', 'id_kyw', 'nama_kyw', 'id_kyw');
-            $data['goluser'] = $this->global_m->tampil_id_desk('sec_gol_user', 'goluser_id', 'goluser_desc', 'goluser_id');
-            $data['statususer'] = $this->global_m->tampil_id_desk('sec_status_user', 'statususer_id', 'statususer_desc', 'statususer_id');
+//            $data['karyawan'] = $this->global_m->tampil_id_desk('master_karyawan', 'id_kyw', 'nama_kyw', 'id_kyw');
+//            $data['goluser'] = $this->global_m->tampil_id_desk('sec_gol_user', 'goluser_id', 'goluser_desc', 'goluser_id');
+//            $data['statususer'] = $this->global_m->tampil_id_desk('sec_status_user', 'statususer_id', 'statususer_desc', 'statususer_id');
 
-            $this->template->set('title', 'Term Of Payment');
+            $this->template->set('title', 'Inventaris');
             $this->template->load('template/template_dataTable', 'operational/inventaris/inventaris_v', $data);
-        }
     }
 
     public function ajax_GridMutation() {
@@ -93,7 +68,7 @@ class Inventaris extends CI_Controller {
         $iwhere2 = array();
         $iwhere3 = array();
         $param_in = 'Status';
-        $iOrWhere = array('Status'=>4,'kode_cab'=>$kodecabang);
+        $iOrWhere = array('Status' => 4, 'kode_cab' => $kodecabang);
         if ($branch == 1) { //JIKA PUSAT : semua ppi bisa lihat data kecuali ppi dengan usergroup support
             if (($div == '8' && $usergroup <> '3') || $div == '20' || $usergroup == '1') {
 //                $iwhere1 = array($this->input->post('sSearch') => $_POST['search']['value']);
@@ -113,7 +88,7 @@ class Inventaris extends CI_Controller {
         $iwhere = array_merge($iwhere1, $iwhere2, $iwhere3);
         $icolumn = array('ZoneName', 'BranchDivName', 'FAID', 'ItemName', 'QTY', 'ClassCode', 'ReqTypeID', 'BranchName', 'BranchCode', 'DivisionName', 'Raw_ID', 'Period', 'PriceVendor', 'SetDatePayment', 'Status', 'Is_trash', 'kode_cab');
         $iorder = array('Raw_ID' => 'asc');
-        $list = $this->datatables_custom->get_datatables('vw_opr_inventaris', $icolumn, $iorder, $iwhere, $where_in, $param_in, array(), null,$iOrWhere);
+        $list = $this->datatables_custom->get_datatables('vw_opr_inventaris', $icolumn, $iorder, $iwhere, $where_in, $param_in, array(), null, $iOrWhere);
 
         $data = array();
         $no = $_POST['start'];

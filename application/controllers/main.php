@@ -7,13 +7,18 @@ class Main extends CI_Controller {
 
     function __construct() {
         parent::__construct();
-
-        $this->load->model('home_m');
-        $this->load->model('user_m');
-        $this->load->model('dashboard/dashboard_m');
-        $this->load->helper('cookie');
-        session_start();
+        $this->load->library("session");
+        if ($this->session->userdata("is_login") === FALSE) {
+            $this->sso->log_sso();
+        } else {
+            $this->load->model('home_m');
+            $this->load->model('user_m');
+            $this->load->model('dashboard/dashboard_m');
+            $this->load->helper('cookie');
+            session_start();
+        }
     }
+
     public function index() {
         if ($this->auth->is_logged_in() == false) {
             $this->login();
@@ -27,7 +32,6 @@ class Main extends CI_Controller {
             $this->template->load('template/template1', 'dashboard_v', $data);
         }
     }
-    
 
     public function login() {
 
@@ -66,10 +70,10 @@ class Main extends CI_Controller {
             //
             $tanggalWaktu = date("Y-m-d H:i:s");
 
-            $success = $this->auth->do_login($username, $password, $tgl_d, $tgl_y, $nama_kantor,$tanggalWaktu);
-			
+            $success = $this->auth->do_login($username, $password, $tgl_d, $tgl_y, $nama_kantor, $tanggalWaktu);
+
             if ($success) {
-                
+
                 $data ['multilevel'] = $this->user_m->get_data(0, $this->session->userdata('usergroup'));
                 //$data ['nama'] = $this->home_m->get_nama_kantor ();
                 $this->template->set('title', 'Microtech | Beranda');

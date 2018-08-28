@@ -8,25 +8,19 @@ class Listasset extends CI_Controller {
 
     function __construct() {
         parent::__construct();
-        session_start();
-        $this->load->model('home_m');
-        $this->load->model('admin/konfigurasi_menu_status_user_m');
+        if ($this->session->userdata("is_login") === FALSE) {
+            $this->sso->log_sso();
+        } else {
+            session_start();
+            $this->load->model('home_m');
+            $this->load->model('admin/konfigurasi_menu_status_user_m');
 //        $this->load->model('zsessions_m');
-        $this->load->model('global_m');
-        $this->load->model('procurement/menu_mdl', 'Menu_mdl');
-        $this->load->model('asset_management/payment_mdl', 'Payment_mdl');
-        $this->load->model('asset_management/listasset_mdl', 'assetlist');
-        $this->load->model('datatables_custom');
-
-//        $sess = $this->zsessions_m->get_sess_data();
-//        echo '<pre>';print_r($sess);  
-//        if (sizeof($sess) > 0) {
-//            $this->userid = $sess->id_user;
-//            $this->username = $sess->username;
-//            $this->role = $sess->usergroup_desc;
-//        } else {
-//            redirect('main/logout');
-//        }
+            $this->load->model('global_m');
+            $this->load->model('procurement/menu_mdl', 'Menu_mdl');
+            $this->load->model('asset_management/payment_mdl', 'Payment_mdl');
+            $this->load->model('asset_management/listasset_mdl', 'assetlist');
+            $this->load->model('datatables_custom');
+        }
     }
 
     public function index() {
@@ -50,34 +44,15 @@ class Listasset extends CI_Controller {
         $this->auth->cek_menu($data['menu_id']);
         $data['group_user'] = $this->konfigurasi_menu_status_user_m->get_status_user();
         //$data['level_user'] = $this->sec_user_m->get_level_user();
-        if (isset($_POST["idTmpAksiBtn"])) {
-            $act = $_POST["idTmpAksiBtn"];
-            if ($act == 1) {
-                $this->simpan();
-            } elseif ($act == 2) {
-                $this->ubah();
-            } elseif ($act == '3') {
-                $this->hapus();
-            } else {
-                $data['multilevel'] = $this->user_m->get_data(0, $this->session->userdata('usergroup'));
-                $data['menu_all'] = $this->user_m->get_menu_all(0);
-                $data['karyawan'] = $this->global_m->tampil_id_desk('master_karyawan', 'id_kyw', 'nama_kyw', 'id_kyw');
-                $data['goluser'] = $this->global_m->tampil_id_desk('sec_gol_user', 'goluser_id', 'goluser_desc', 'goluser_id');
 
-                $data['statususer'] = $this->global_m->tampil_id_desk('sec_status_user', 'statususer_id', 'statususer_desc', 'statususer_id');
-                $this->template->set('title', 'Term Of Payment');
-                $this->template->load('template/template_dataTable', 'asset_management/listasset/listasset_v', $data);
-            }
-        } else {
-            $data['multilevel'] = $this->user_m->get_data(0, $this->session->userdata('usergroup'));
-            $data['menu_all'] = $this->user_m->get_menu_all(0);
-            $data['karyawan'] = $this->global_m->tampil_id_desk('master_karyawan', 'id_kyw', 'nama_kyw', 'id_kyw');
-            $data['goluser'] = $this->global_m->tampil_id_desk('sec_gol_user', 'goluser_id', 'goluser_desc', 'goluser_id');
-            $data['statususer'] = $this->global_m->tampil_id_desk('sec_status_user', 'statususer_id', 'statususer_desc', 'statususer_id');
+        $data['multilevel'] = $this->user_m->get_data(0, $this->session->userdata('usergroup'));
+        $data['menu_all'] = $this->user_m->get_menu_all(0);
+//            $data['karyawan'] = $this->global_m->tampil_id_desk('master_karyawan', 'id_kyw', 'nama_kyw', 'id_kyw');
+//            $data['goluser'] = $this->global_m->tampil_id_desk('sec_gol_user', 'goluser_id', 'goluser_desc', 'goluser_id');
+//            $data['statususer'] = $this->global_m->tampil_id_desk('sec_status_user', 'statususer_id', 'statususer_desc', 'statususer_id');
 
-            $this->template->set('title', 'Term Of Payment');
-            $this->template->load('template/template_dataTable', 'asset_management/listasset/listasset_v', $data);
-        }
+        $this->template->set('title', 'Listasset');
+        $this->template->load('template/template_dataTable', 'asset_management/listasset/listasset_v', $data);
     }
 
     public function ajax_GridMutation() {
@@ -403,8 +378,8 @@ class Listasset extends CI_Controller {
             $footer->addText('PT Permodalan Nasional Madani (Persero)');
             $footer->addText('Kantor Pusat : Gedung Arthaloka Lt. 1,6 dan 10 Jl. Jend Sudirman Kav.2-Jakarta 10220 Telp.(021)2511 405 E-mail madani@pnm.co.id, www.pnm.co.id ');
             $filename = 'DISPOSAL.docx'; //save our document as this file name
-             
-             ob_end_clean();
+
+            ob_end_clean();
             header("Content-type: application/vnd.ms-word");
 //            header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document'); //mime type
             header('Content-Disposition: attachment;filename="' . $filename . '"'); //tell browser what's the file name
@@ -414,7 +389,6 @@ class Listasset extends CI_Controller {
 
             $objWriter = PHPWord_IOFactory::createWriter($this->word, 'Word2007');
             $objWriter->save('php://output');
-
         }
     }
 
@@ -485,7 +459,7 @@ class Listasset extends CI_Controller {
                 $tabel .= '<script>window.print()</script>';
             }
         }
-        
+
         echo $tabel;
     }
 

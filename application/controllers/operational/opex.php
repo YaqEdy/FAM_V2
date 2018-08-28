@@ -8,22 +8,16 @@ class Opex extends CI_Controller {
 
     function __construct() {
         parent::__construct();
-        session_start();
-        $this->load->model('home_m');
-        $this->load->model('admin/konfigurasi_menu_status_user_m');
+        if ($this->session->userdata("is_login") === FALSE) {
+            $this->sso->log_sso();
+        } else {
+            session_start();
+            $this->load->model('home_m');
+            $this->load->model('admin/konfigurasi_menu_status_user_m');
 //        $this->load->model('zsessions_m');
-        $this->load->model('global_m');
-        $this->load->model('datatables_custom');
-
-//        $sess = $this->zsessions_m->get_sess_data();
-//        echo '<pre>';print_r($sess);  
-//        if (sizeof($sess) > 0) {
-//            $this->userid = $sess->id_user;
-//            $this->username = $sess->username;
-//            $this->role = $sess->usergroup_desc;
-//        } else {
-//            redirect('main/logout');
-//        }
+            $this->load->model('global_m');
+            $this->load->model('datatables_custom');
+        }
     }
 
     public function index() {
@@ -47,34 +41,15 @@ class Opex extends CI_Controller {
         $this->auth->cek_menu($data['menu_id']);
         $data['group_user'] = $this->konfigurasi_menu_status_user_m->get_status_user();
         //$data['level_user'] = $this->sec_user_m->get_level_user();
-        if (isset($_POST["idTmpAksiBtn"])) {
-            $act = $_POST["idTmpAksiBtn"];
-            if ($act == 1) {
-                $this->simpan();
-            } elseif ($act == 2) {
-                $this->ubah();
-            } elseif ($act == '3') {
-                $this->hapus();
-            } else {
-                $data['multilevel'] = $this->user_m->get_data(0, $this->session->userdata('usergroup'));
-                $data['menu_all'] = $this->user_m->get_menu_all(0);
-                $data['karyawan'] = $this->global_m->tampil_id_desk('master_karyawan', 'id_kyw', 'nama_kyw', 'id_kyw');
-                $data['goluser'] = $this->global_m->tampil_id_desk('sec_gol_user', 'goluser_id', 'goluser_desc', 'goluser_id');
 
-                $data['statususer'] = $this->global_m->tampil_id_desk('sec_status_user', 'statususer_id', 'statususer_desc', 'statususer_id');
-                $this->template->set('title', 'Term Of Payment');
-                $this->template->load('template/template_dataTable', 'operational/opex/opex_v', $data);
-            }
-        } else {
-            $data['multilevel'] = $this->user_m->get_data(0, $this->session->userdata('usergroup'));
-            $data['menu_all'] = $this->user_m->get_menu_all(0);
-            $data['karyawan'] = $this->global_m->tampil_id_desk('master_karyawan', 'id_kyw', 'nama_kyw', 'id_kyw');
-            $data['goluser'] = $this->global_m->tampil_id_desk('sec_gol_user', 'goluser_id', 'goluser_desc', 'goluser_id');
-            $data['statususer'] = $this->global_m->tampil_id_desk('sec_status_user', 'statususer_id', 'statususer_desc', 'statususer_id');
+        $data['multilevel'] = $this->user_m->get_data(0, $this->session->userdata('usergroup'));
+        $data['menu_all'] = $this->user_m->get_menu_all(0);
+//            $data['karyawan'] = $this->global_m->tampil_id_desk('master_karyawan', 'id_kyw', 'nama_kyw', 'id_kyw');
+//            $data['goluser'] = $this->global_m->tampil_id_desk('sec_gol_user', 'goluser_id', 'goluser_desc', 'goluser_id');
+//            $data['statususer'] = $this->global_m->tampil_id_desk('sec_status_user', 'statususer_id', 'statususer_desc', 'statususer_id');
 
-            $this->template->set('title', 'Term Of Payment');
-            $this->template->load('template/template_dataTable', 'operational/opex/opex_v', $data);
-        }
+        $this->template->set('title', 'Opex');
+        $this->template->load('template/template_dataTable', 'operational/opex/opex_v', $data);
     }
 
     public function ajax_GridOpex() {
@@ -98,7 +73,7 @@ class Opex extends CI_Controller {
             $iwhere3 = array('BranchID' => $branch);
         }
 
-        $iwhere = array_merge($iwhere1,$iwhere2,$iwhere3);
+        $iwhere = array_merge($iwhere1, $iwhere2, $iwhere3);
         $icolumn = array('ZoneName', 'BranchName', 'ItemName', 'BranchCode', 'QTY', 'PriceVendor', 'DivisionName', 'Raw_ID', 'Period', 'SetDatePayment', 'Status', 'ReqTypeName', 'RequestID', 'DivisionID', 'BranchID');
         $iorder = array('Raw_ID' => 'asc');
         $list = $this->datatables_custom->get_datatables('vw_opr_opex', $icolumn, $iorder, $iwhere);
@@ -130,7 +105,6 @@ class Opex extends CI_Controller {
         //output to json format
         echo json_encode($output);
     }
-
 
 }
 
